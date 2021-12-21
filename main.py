@@ -151,7 +151,8 @@ class GroundEnemy(Enemy):
         self.direction = 1
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, level.surface_sprites):
+        if pygame.sprite.spritecollideany(self, platforms):
+        #if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
             self.walking()
         else:
