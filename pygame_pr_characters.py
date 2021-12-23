@@ -9,6 +9,7 @@ pygame.init()
 pygame.display.set_caption('Создание персонажей')
 size = width, height = 500, 500
 screen = pygame.display.set_mode(size)
+# выстрел каждые 3 секунды
 SHOOTING_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(SHOOTING_EVENT, 3000)
 
@@ -57,6 +58,7 @@ class MainCharacter(pygame.sprite.Sprite):
             self.rect = self.rect.move(3, 0)
 
     def walking(self, direction):
+        # определение направления движения
         if direction == pygame.K_LEFT:
             self.left = True
         elif direction == pygame.K_RIGHT:
@@ -113,14 +115,20 @@ class Bullet(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, pygame.Color("red"),
                            (5, 5), 5)
         self.rect = pygame.Rect(x, y, 2 * 5, 2 * 5)
+        # получение координат главного героя
         self.target_x = main_character.rect.x
         self.target_y = main_character.rect.y
         targets = [self.target_x, self.target_y]
+        # нахождение расстояния между стрелком и главным героем
         paths = [abs(self.target_x - x), abs(self.target_y - y)]
         coords = [x, y]
         hypot = math.hypot(paths[0], paths[1])
         for_direction = [1, 1]
+        # определение направления полета снаряда
         self.dx, self.dy = map(lambda i:  for_direction[i] * 1 if coords[i] - targets[i] < 0 else -1, range(2))
+        # сначала мы выясням, за сколько времени пуля пройдет гипотенузу
+        # и потом присваиваем скорости по x и y значения: расстояние по x или y / время прохождения гипотенузы
+        # 4 - скорость прохождения гипотенузы (выбрал сам)
         self.vx = math.ceil(paths[0] / (hypot / 4))
         self.vy = math.ceil(paths[1] / (hypot / 4))
 
@@ -133,8 +141,10 @@ class GroundEnemy(Enemy):
         super().__init__()
         self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
         pygame.draw.rect(self.image, pygame.Color('pink'), (0, 0, 20, 20))
+        # начальная координата, которая является левой крайней точкой
         self.start_x = x
         self.rect = pygame.Rect(x, y, 20, 20)
+        # конечная координата
         self.walking_range = walking_range
         self.moving = False
         self.direction = 1
@@ -149,6 +159,7 @@ class GroundEnemy(Enemy):
             self.rect = self.rect.move(0, 1)
 
     def walking(self):
+        # цикличное хождение влево-вправо от
         if self.rect.x + 1 > self.start_x + self.walking_range:
             self.direction = -1
         elif self.rect.x - 1 < self.start_x:
