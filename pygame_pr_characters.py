@@ -35,6 +35,8 @@ class MainCharacter(pygame.sprite.Sprite):
         super().__init__(main_character_gr)
         self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
         pygame.draw.rect(self.image, pygame.Color('blue'), (0, 0, 20, 20))
+        self.items = dict()
+        self.hp = 3
         self.rect = pygame.Rect(2, 350, 20, 20)
         self.moving = False
         self.jumping = False
