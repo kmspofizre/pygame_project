@@ -50,7 +50,7 @@ class MainCharacter(pygame.sprite.Sprite):
         self.right = False
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, platforms):
+        if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
             self.jumping = False
         else:
@@ -106,7 +106,7 @@ class Archer(Enemy):
         self.moving = False
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, platforms):
+        if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
         else:
             self.moving = False
@@ -151,8 +151,8 @@ class GroundEnemy(Enemy):
         self.direction = 1
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, platforms):
-        #if pygame.sprite.spritecollideany(self, level.surface_sprites):
+        #if pygame.sprite.spritecollideany(self, platforms):
+        if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
             self.walking()
         else:
@@ -238,7 +238,7 @@ while running:
         bullets.draw(screen)
         main_character_gr.draw(screen)
         enemies.draw(screen)
-        platforms.draw(screen)
+        #platforms.draw(screen)
         clock1.tick(fps)
        # pygame.display.flip()
         pygame.display.update()

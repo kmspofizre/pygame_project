@@ -86,6 +86,3 @@ class Level:
 	def create(self):
 		self.surface_sprites.update(self.screen_shift)
 		self.surface_sprites.draw(self.display_surface)
-
-
-
