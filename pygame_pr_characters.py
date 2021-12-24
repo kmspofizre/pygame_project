@@ -12,6 +12,7 @@ screen = pygame.display.set_mode(size)
 # выстрел каждые 3 секунды
 SHOOTING_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(SHOOTING_EVENT, 3000)
+FPS = 30
 
 
 def load_image(name, colorkey=None):
@@ -36,7 +37,7 @@ class MainCharacter(pygame.sprite.Sprite):
         self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
         pygame.draw.rect(self.image, pygame.Color('blue'), (0, 0, 20, 20))
         self.items = dict()
-        self.hp = 3
+        self.hp = 50
         self.rect = pygame.Rect(2, 350, 20, 20)
         self.moving = False
         self.jumping = False
@@ -73,11 +74,26 @@ class MainCharacter(pygame.sprite.Sprite):
             self.right = False
 
     def jump(self):
+
+        # переменная jumping позволяет передвигаться в воздухе
+
         self.jumping = True
         self.rect = self.rect.move(0, -100)
 
+    def get_damage(self):
+
+        # получение урона от пуль и ходячих, если здоровье на нуле, то игра окончена
+
+        self.hp -= 1
+        print(self.hp)
+        if self.hp == 0:
+            game_over()
+
 
 class Platform(pygame.sprite.Sprite):
+
+    # тестовое окружение
+
     def __init__(self):
         super().__init__(platforms)
         self.image = pygame.Surface((500, 100), pygame.SRCALPHA, 32)
@@ -99,6 +115,9 @@ class Archer(Enemy):
         self.moving = False
 
     def update(self, *args):
+
+        # проверка, стоит ли лучник на земле, если нет - то падение
+
         if pygame.sprite.spritecollideany(self, platforms):
             self.moving = True
         else:
@@ -107,6 +126,9 @@ class Archer(Enemy):
             self.rect = self.rect.move(0, 1)
 
     def shoot(self):
+
+        # выстрел, при инициализации класса передаеются координаты стрелка
+
         Bullet(self.rect.x, self.rect.y)
 
 
@@ -135,7 +157,14 @@ class Bullet(pygame.sprite.Sprite):
         self.vy = math.ceil(paths[1] / (hypot / 4))
 
     def update(self):
+
+        # пуля перемещается на произведение скорости и расстояния и при соприкосновении
+        # с главным героем уменьшает его здоровье и пропадает
+
         self.rect = self.rect.move(self.vx * self.dx, self.vy * self.dy)
+        if pygame.sprite.spritecollideany(self, main_character_gr):
+            main_character.get_damage()
+            self.kill()
 
 
 class GroundEnemy(Enemy):
@@ -149,19 +178,35 @@ class GroundEnemy(Enemy):
         # конечная координата
         self.walking_range = walking_range
         self.moving = False
+        self.attack = True
+        self.cooldown = 3000
+        self.last = 0
         self.direction = 1
+        self.attack_clock = pygame.time.Clock()
 
     def update(self, *args):
         if pygame.sprite.spritecollideany(self, platforms):
+
+            # если стоит на замле, то запускается цикличны1 обход
+
             self.moving = True
             self.walking()
         else:
             self.moving = False
         if not self.moving:
             self.rect = self.rect.move(0, 1)
+        if pygame.sprite.spritecollideany(self, main_character_gr):
+            if self.attack:
+                main_character.get_damage()
+                self.attack = False
+                self.last = pygame.time.get_ticks()
+            else:
+                now = pygame.time.get_ticks()
+                if now - self.last >= 3000:
+                    self.attack = True
 
     def walking(self):
-        # цикличное хождение влево-вправо от
+        # цикличное хождение влево-вправо от стартовой позиции до стартовая позиция + walking_range
         if self.rect.x + 1 > self.start_x + self.walking_range:
             self.direction = -1
         elif self.rect.x - 1 < self.start_x:
@@ -169,28 +214,34 @@ class GroundEnemy(Enemy):
         self.rect = self.rect.move(1 * self.direction, 0)
 
 
+bullets = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
+main_character_gr = pygame.sprite.Group()
+main_character = MainCharacter()
+platforms = pygame.sprite.Group()
+pl = Platform()
+ar = Archer(100, 250)
+archers = (ar,)
+we = GroundEnemy(150, 350, 40)
+running = True
+
+
+def game_over():
+    global running
+    running = False
+
+
 if __name__ == '__main__':
-    running = True
-    fps = 30
     clock1 = pygame.time.Clock()
     screen.fill(pygame.Color('black'))
-
-    bullets = pygame.sprite.Group()
-    enemies = pygame.sprite.Group()
-    main_character_gr = pygame.sprite.Group()
-    main_character = MainCharacter()
-    platforms = pygame.sprite.Group()
-    pl = Platform()
-    ar = Archer(100, 250)
-    ar1 = Archer(300, 380)
-    we = GroundEnemy(150, 350, 40)
-    archers = ar, ar1
-
     while running:
         screen.fill(pygame.Color('black'))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
+            # выстрел
+
             if event.type == SHOOTING_EVENT:
                 for j in range(len(archers)):
                     archers[j].shoot()
@@ -208,5 +259,5 @@ if __name__ == '__main__':
         main_character_gr.draw(screen)
         enemies.draw(screen)
         platforms.draw(screen)
-        clock1.tick(fps)
+        clock1.tick(FPS)
         pygame.display.flip()
