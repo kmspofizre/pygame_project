@@ -226,10 +226,9 @@ while running:
             else:
                 level.sdvig_x(0)
 
+        level.create()
         if pygame.mouse.get_focused():
             cursor.draw(screen)
-
-        level.create()
 
         main_character.update()
         enemies.update()
