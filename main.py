@@ -172,7 +172,6 @@ if __name__ == '__main__':
     running = True
     fps = 30
     clock1 = pygame.time.Clock()
-    screen.fill(pygame.Color('black'))
 
     level = Level(level_0, screen)
 
@@ -200,7 +199,7 @@ if __name__ == '__main__':
     sound.set_volume(0.3)
 
 while running:
-        screen.fill(pygame.Color('black'))
+        screen.fill(pygame.Color("#7ec0ee"))
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
