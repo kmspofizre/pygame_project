@@ -67,7 +67,7 @@ class Level:
 					y = r_index * tile_size
 
 					if type == 'surface':
-						surface_tile_list = import_cut_png('./data/surface/surf.png')
+						surface_tile_list = import_cut_png('./data/surface/surface.png')
 						tile_surface = surface_tile_list[int(znach)]
 						sprite = StatTile(tile_size, x, y, tile_surface)
 
