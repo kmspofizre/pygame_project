@@ -4,7 +4,11 @@ import math
 
 import pygame
 #import characters
+import self as self
+
 from level import Level
+from sound import Sound
+from cursor import Cursor
 
 
 level_0 = {'surface': './levels/level0/level0_surface.csv'}
@@ -189,14 +193,10 @@ if __name__ == '__main__':
     pygame.mouse.set_visible(False)
 
     cursor = pygame.sprite.Group()
-    cur_img = load_image("cursor.gif")
-    cur = pygame.sprite.Sprite(cursor)
-    cur.image = cur_img
-    cur.rect = cur.image.get_rect()
+    cur = Cursor(cursor, load_image("cursor.gif"))
 
-    sound = pygame.mixer.Sound('audio\\music2.mp3')
-    sound.play(10)
-    sound.set_volume(0.3)
+    Sound = Sound()
+    Sound.play('game2', 10, 0.3)
 
 while running:
         screen.fill(pygame.Color("#7ec0ee"))

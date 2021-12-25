@@ -1,13 +1,14 @@
 import csv
 import pygame
 
+# настройка размера экрана и размера tile
 tile_number_vertic = 12
 tile_size = 64
 
 screen_height = tile_number_vertic * tile_size
 screen_width = 1200
 
-
+# функция импортирования файла описания уровня csv
 def import_csv(path):
 	surface_spisok = []
 	with open(path) as filein:
@@ -16,7 +17,7 @@ def import_csv(path):
 			surface_spisok.append(list(row))
 		return surface_spisok
 
-
+# функция создания списка поверхностей tile из одного файла png
 def import_cut_png(path):
 	surface = pygame.image.load(path).convert_alpha()
 	tile_x = int(surface.get_size()[0] / tile_size)
@@ -32,7 +33,7 @@ def import_cut_png(path):
 			cut_tiles.append(new)
 	return cut_tiles
 
-
+# родительский класс tile
 class Tile(pygame.sprite.Sprite):
 	def __init__(self, size, x, y):
 		super().__init__()
@@ -42,13 +43,13 @@ class Tile(pygame.sprite.Sprite):
 	def update(self, shift):
 		self.rect.x += shift
 
-
-class StatTile(Tile):
+# класс tile поверхности
+class SurfaceTile(Tile):
 	def __init__(self, size, x, y, surface):
 		super().__init__(size, x, y)
 		self.image = surface
 
-
+# класс уровня
 class Level:
 	def __init__(self, level_data, surface):
 		self.display_surface = surface
@@ -57,6 +58,7 @@ class Level:
 		surface_layout = import_csv(level_data['surface'])
 		self.surface_sprites = self.create_tile_group(surface_layout, 'surface')
 
+	# функция создания уровня из tile
 	def create_tile_group(self, lay, type):
 		sprite_group = pygame.sprite.Group()
 
@@ -69,12 +71,13 @@ class Level:
 					if type == 'surface':
 						surface_tile_list = import_cut_png('./data/surface/surface.png')
 						tile_surface = surface_tile_list[int(znach)]
-						sprite = StatTile(tile_size, x, y, tile_surface)
+						sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
 					sprite_group.add(sprite)
 		
 		return sprite_group
 
+	# функция сдвига tile-ов в зависимости от движения игрока (камера)
 	def sdvig_x(self, direction_x):
 		if direction_x < 0:
 			self.screen_shift = 5
@@ -83,6 +86,7 @@ class Level:
 		else:
 			self.screen_shift = 0
 
+	# функция обновления tile уровня на экране
 	def create(self):
 		self.surface_sprites.update(self.screen_shift)
 		self.surface_sprites.draw(self.display_surface)
