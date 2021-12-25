@@ -55,7 +55,6 @@ class MainCharacter(pygame.sprite.Sprite):
         else:
             self.moving = False
         if not self.moving:
-            print('a')
             if not self.rising:
                 self.rect = self.rect.move(0, 3)
                 self.moving = False
