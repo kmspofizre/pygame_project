@@ -4,7 +4,6 @@ import math
 
 import pygame
 
-
 pygame.init()
 pygame.display.set_caption('Создание персонажей')
 size = width, height = 500, 500
@@ -12,6 +11,7 @@ screen = pygame.display.set_mode(size)
 # выстрел каждые 3 секунды
 SHOOTING_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(SHOOTING_EVENT, 3000)
+clock1 = pygame.time.Clock()
 FPS = 30
 
 
@@ -40,9 +40,13 @@ class MainCharacter(pygame.sprite.Sprite):
         self.hp = 50
         self.rect = pygame.Rect(2, 350, 20, 20)
         self.moving = False
+        self.rising = False
         self.jumping = False
         self.left = False
         self.right = False
+        self.att = True
+        self.last = 0
+        self.rising_timer = 0
 
     def update(self, *args):
         if pygame.sprite.spritecollideany(self, platforms):
@@ -51,14 +55,25 @@ class MainCharacter(pygame.sprite.Sprite):
         else:
             self.moving = False
         if not self.moving:
-            self.rect = self.rect.move(0, 1)
-            self.moving = False
+            print('a')
+            if not self.rising:
+                self.rect = self.rect.move(0, 3)
+                self.moving = False
+            else:
+                self.rect = self.rect.move(0, -5)
+                self.rising_timer -= 5
+                if self.rising_timer == 0:
+                    self.rising = False
         if self.left and self.right:
             pass
         elif self.left:
             self.rect = self.rect.move(-3, 0)
         elif self.right:
             self.rect = self.rect.move(3, 0)
+        if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
+            now = pygame.time.get_ticks()  # атака перезаряжается
+            if now - self.last >= 3000:
+                self.att = True
 
     def walking(self, direction):
         # определение направления движения
@@ -76,18 +91,31 @@ class MainCharacter(pygame.sprite.Sprite):
     def jump(self):
 
         # переменная jumping позволяет передвигаться в воздухе
-
+        self.rising = True
+        self.rising_timer += 100
         self.jumping = True
-        self.rect = self.rect.move(0, -100)
+        self.moving = False
+        self.rect = self.rect.move(0, -5)
 
     def get_damage(self):
 
         # получение урона от пуль и ходячих, если здоровье на нуле, то игра окончена
 
         self.hp -= 1
-        print(self.hp)
         if self.hp == 0:
             game_over()
+
+    def attack(self):
+        if self.att and self.jumping:
+            pass  # атака в прыжке (разработаю, когда будет анимация атаки в прыжке)
+        elif self.att:  # гг производит атаку и перезаряжает ее
+            for elem in enemies_sp:
+                elem.is_under_attack()  # проверка для каждого игрока находится ли он в поле действия атаки
+            self.att = False
+            self.last = pygame.time.get_ticks()
+
+    def shoot(self, target):
+        Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
 
 
 class Platform(pygame.sprite.Sprite):
@@ -104,6 +132,23 @@ class Platform(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(enemies)
+        self.hp = 5
+
+    def is_under_attack(self):
+        if pygame.sprite.spritecollideany(self, main_character_gr):  # получение урона от гг (функция attack)
+            self.get_damage()
+
+    def is_getting_shot(self):
+        if pygame.sprite.spritecollideany(self, shurikens):
+            self.get_damage()
+
+    def get_damage(self):
+        self.hp -= 1
+        if self.hp == 0:
+            self.kill()
+            enemies_sp.remove(self)
+            if self in archers:
+                archers.remove(self)
 
 
 class Archer(Enemy):
@@ -127,43 +172,63 @@ class Archer(Enemy):
 
     def shoot(self):
 
-        # выстрел, при инициализации класса передаеются координаты стрелка
+        # выстрел, при инициализации класса передаются координаты стрелка
 
-        Bullet(self.rect.x, self.rect.y)
+        Bullet(self.rect.x, self.rect.y, main_character.rect.x, main_character.rect.y, bullets)
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__(bullets)
+    def __init__(self, x, y, target_x, target_y, group):
+        super().__init__(group)
         self.image = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
         pygame.draw.circle(self.image, pygame.Color("red"),
                            (5, 5), 5)
         self.rect = pygame.Rect(x, y, 2 * 5, 2 * 5)
-        # получение координат главного героя
-        self.target_x = main_character.rect.x
-        self.target_y = main_character.rect.y
+        # получение координат цели
+        self.target_x = target_x
+        self.target_y = target_y
         targets = [self.target_x, self.target_y]
-        # нахождение расстояния между стрелком и главным героем
+        # нахождение расстояния между стрелком и целью
         paths = [abs(self.target_x - x), abs(self.target_y - y)]
         coords = [x, y]
         hypot = math.hypot(paths[0], paths[1])
         for_direction = [1, 1]
         # определение направления полета снаряда
-        self.dx, self.dy = map(lambda i:  for_direction[i] * 1 if coords[i] - targets[i] < 0 else -1, range(2))
+        self.dx, self.dy = map(lambda i: for_direction[i] * 1 if coords[i] - targets[i] < 0 else -1, range(2))
         # сначала мы выясням, за сколько времени пуля пройдет гипотенузу
         # и потом присваиваем скорости по x и y значения: расстояние по x или y / время прохождения гипотенузы
         # 4 - скорость прохождения гипотенузы (выбрал сам)
+        if paths[1] <= 10:
+            self.vy = 0
+        else:
+            self.vy = math.ceil(paths[1] / (hypot / 4))
         self.vx = math.ceil(paths[0] / (hypot / 4))
-        self.vy = math.ceil(paths[1] / (hypot / 4))
 
     def update(self):
-
         # пуля перемещается на произведение скорости и расстояния и при соприкосновении
         # с главным героем уменьшает его здоровье и пропадает
 
         self.rect = self.rect.move(self.vx * self.dx, self.vy * self.dy)
         if pygame.sprite.spritecollideany(self, main_character_gr):
             main_character.get_damage()
+            self.kill()
+
+
+class Shuriken(Bullet):
+    def __init__(self, x, y, target_x, target_y, group):
+        super().__init__(x, y, target_x, target_y, group)
+        self.waiting = False
+        self.touch_time = 0
+        self.image = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+        pygame.draw.circle(self.image, pygame.Color("white"),
+                           (5, 5), 5)
+        self.rect = pygame.Rect(x, y, 2 * 5, 2 * 5)
+
+    def update(self):
+        self.rect = self.rect.move(self.vx * self.dx, self.vy * self.dy)
+        if pygame.sprite.spritecollideany(self, enemies):
+            for elem in enemies_sp:
+                elem.is_getting_shot()  # поиск противника, в которого попали
             self.kill()
 
 
@@ -202,8 +267,10 @@ class GroundEnemy(Enemy):
                 self.last = pygame.time.get_ticks()
             else:
                 now = pygame.time.get_ticks()
-                if now - self.last >= 3000:
-                    self.attack = True
+                if now - self.last >= 3000:  # если с последней атаки прошло 3 и больше секунд
+                    self.attack = True       # то можно атаковать снова
+        if pygame.sprite.spritecollideany(self, shurikens):
+            self.get_damage()
 
     def walking(self):
         # цикличное хождение влево-вправо от стартовой позиции до стартовая позиция + walking_range
@@ -215,15 +282,17 @@ class GroundEnemy(Enemy):
 
 
 bullets = pygame.sprite.Group()
+shurikens = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 main_character_gr = pygame.sprite.Group()
 main_character = MainCharacter()
 platforms = pygame.sprite.Group()
 pl = Platform()
 ar = Archer(100, 250)
-archers = (ar,)
+archers = [ar]
 we = GroundEnemy(150, 350, 40)
 running = True
+enemies_sp = [we, ar]
 
 
 def game_over():
@@ -232,7 +301,6 @@ def game_over():
 
 
 if __name__ == '__main__':
-    clock1 = pygame.time.Clock()
     screen.fill(pygame.Color('black'))
     while running:
         screen.fill(pygame.Color('black'))
@@ -245,17 +313,24 @@ if __name__ == '__main__':
             if event.type == SHOOTING_EVENT:
                 for j in range(len(archers)):
                     archers[j].shoot()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    main_character.shoot(event.pos)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and main_character.moving:
                     main_character.jump()
                 if main_character.moving or main_character.jumping:
                     main_character.walking(event.key)
+                if event.key == pygame.K_a:
+                    main_character.attack()
             if event.type == pygame.KEYUP:
                 main_character.stop_walking(event.key)
         main_character.update()
         enemies.update()
+        shurikens.update()
         bullets.update()
         bullets.draw(screen)
+        shurikens.draw(screen)
         main_character_gr.draw(screen)
         enemies.draw(screen)
         platforms.draw(screen)
