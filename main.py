@@ -1,29 +1,21 @@
 import os
 import sys
 import math
-
 import pygame
 #import characters
-import self as self
 
+# загрузка настроек игры, уровней и различных классов
+from game_settings import *
 from level import Level
 from sound import Sound
 from cursor import Cursor
-
-
-level_0 = {'surface': './levels/level0/level0_surface.csv'}
-
-tile_number_vertic = 12
-tile_size = 64
-
-screen_height = tile_number_vertic * tile_size
-screen_width = 1200
 
 pygame.init()
 pygame.display.set_caption('КВАДРАТ В Бэдламе')
 screen = pygame.display.set_mode((screen_width, screen_height))
 SHOOTING_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(SHOOTING_EVENT, 3000)
+fps = 30
 
 
 def load_image(name, colorkey=None):
@@ -174,7 +166,6 @@ class GroundEnemy(Enemy):
 
 if __name__ == '__main__':
     running = True
-    fps = 30
     clock1 = pygame.time.Clock()
 
     level = Level(level_0, screen)
@@ -193,10 +184,10 @@ if __name__ == '__main__':
     pygame.mouse.set_visible(False)
 
     cursor = pygame.sprite.Group()
-    cur = Cursor(cursor, load_image("cursor.gif"))
+    cur = Cursor(cursor)
 
     Sound = Sound()
-    Sound.play('game2', 10, 0.3)
+    Sound.play('game1', 10, 0.3)
 
 while running:
         screen.fill(pygame.Color("#7ec0ee"))
@@ -227,6 +218,7 @@ while running:
                 level.sdvig_x(0)
 
         level.create()
+
         if pygame.mouse.get_focused():
             cursor.draw(screen)
 

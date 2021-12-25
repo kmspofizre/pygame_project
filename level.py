@@ -1,12 +1,7 @@
 import csv
 import pygame
+from game_settings import *
 
-# настройка размера экрана и размера tile
-tile_number_vertic = 12
-tile_size = 64
-
-screen_height = tile_number_vertic * tile_size
-screen_width = 1200
 
 # функция импортирования файла описания уровня csv
 def import_csv(path):
