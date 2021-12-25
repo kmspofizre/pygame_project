@@ -2,13 +2,14 @@ import os
 import sys
 import math
 import pygame
-#import characters
 
 # загрузка настроек игры, уровней и различных классов
 from game_settings import *
 from level import Level
 from sound import Sound
 from cursor import Cursor
+
+#import characters
 
 pygame.init()
 pygame.display.set_caption('КВАДРАТ В Бэдламе')
@@ -168,6 +169,7 @@ if __name__ == '__main__':
     running = True
     clock1 = pygame.time.Clock()
 
+    # инициализация уровня
     level = Level(level_0, screen)
 
     bullets = pygame.sprite.Group()
@@ -181,16 +183,18 @@ if __name__ == '__main__':
     we = GroundEnemy(150, 350, 40)
     archers = ar, ar1
 
+    # инициализация курсора
     pygame.mouse.set_visible(False)
-
     cursor = pygame.sprite.Group()
     cur = Cursor(cursor)
 
+    # инициализация звука и музыки
     Sound = Sound()
     Sound.play('game1', 10, 0.3)
 
 while running:
-        screen.fill(pygame.Color("#7ec0ee"))
+        screen.fill(pygame.Color(surface_color))
+
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
@@ -210,6 +214,7 @@ while running:
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
 
+        # обработчик камеры
             if keys[pygame.K_RIGHT]:
                 level.sdvig_x(1)
             elif keys[pygame.K_LEFT]:
@@ -217,8 +222,10 @@ while running:
             else:
                 level.sdvig_x(0)
 
+        # вызов метода обновления экрана
         level.create()
 
+        # обработчик курсора
         if pygame.mouse.get_focused():
             cursor.draw(screen)
 
