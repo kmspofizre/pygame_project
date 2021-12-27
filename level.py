@@ -6,7 +6,8 @@ from game_settings import *
 
 # путь csv уровней
 level_0 = {'surface': './levels/level0/level0_surface.csv',
-           'cup': './levels/level0/level0_cup.csv'}
+           'cup': './levels/level0/level0_cup.csv',
+           'bochki': './levels/level0/level0_bochki.csv'}
 level_1 = {'surface': './levels/level0/level1_surface.csv'}
 level_2 = {'surface': './levels/level0/level2_surface.csv'}
 
@@ -104,6 +105,9 @@ class Level:
         surface_layout = import_csv(level_data['surface'])
         self.surface_sprites = self.create_tile_group(surface_layout, 'surface')
 
+        bochki_layout = import_csv(level_data['bochki'])
+        self.bochki_sprites = self.create_tile_group(bochki_layout, 'bochki')
+
         cup_layout = import_csv(level_data['cup'])
         self.cup_sprites = self.create_tile_group(cup_layout, 'cup')
 
@@ -122,10 +126,12 @@ class Level:
                         tile_surface = surface_tile_list[int(znach)]
                         sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
-                    if type == 'cup':
-                        surface_tile_list = import_cut_png('./data/cup/coin.png')
+                    if type == 'bochki':
+                        surface_tile_list = import_cut_png('./data/bochki/bochka1.png')
                         tile_surface = surface_tile_list[int(znach)]
-                        # sprite = ActionTile(tile_size, x, y, tile_surface)
+                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
+
+                    if type == 'cup':
                         sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
 
                     sprite_group.add(sprite)
@@ -145,6 +151,9 @@ class Level:
     def create(self):
         self.surface_sprites.update(self.screen_shift)
         self.surface_sprites.draw(self.display_surface)
+
+        self.bochki_sprites.update(self.screen_shift)
+        self.bochki_sprites.draw(self.display_surface)
 
         self.cup_sprites.update(self.screen_shift)
         self.cup_sprites.draw(self.display_surface)
