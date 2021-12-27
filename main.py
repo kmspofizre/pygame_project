@@ -192,8 +192,10 @@ if __name__ == '__main__':
     Sound = Sound()
     Sound.play('game1', 10, 0.3)
 
+    #surface_color = "#7ec0ee"
+
 while running:
-        screen.fill(pygame.Color(surface_color))
+       # screen.fill(pygame.Color(surface_color))
 
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()

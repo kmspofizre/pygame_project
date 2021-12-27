@@ -2,7 +2,13 @@ import csv
 import pygame
 import os
 import sys
-from game_settings import *
+import random
+
+tile_number_vertic = 12
+tile_size = 64
+
+screen_height = tile_number_vertic * tile_size
+screen_width = 1200
 
 # путь csv уровней
 level_0 = {'surface': './levels/level0/level0_surface.csv',
@@ -95,12 +101,39 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
         self.rect.x += shift
 
+# класс фона
+class Fon():
+    def __init__(self):
+       # self.first_level = pygame.image.load('./data/fon/.png').convert()
+        self.second_level = pygame.image.load('./data/fon/second_level_fon.png').convert()
+       # self.third_level = pygame.image.load('./data/fon/.png').convert()
+       # self.four_level = pygame.image.load('./data/fon/.png').convert()
+
+     #   self.first_level = pygame.transform.scale(self.first_level, (screen_width, screen_height))
+        self.second_level = pygame.transform.scale(self.second_level, (screen_width, screen_height))
+     #   self.third_level = pygame.transform.scale(self.third_level, (screen_width, screen_height))
+     #   self.four_level = pygame.transform.scale(self.four_level, (screen_width, screen_height))
+
+    def draw(self, surface):
+        #for stroki in range(tile_number_vertic):
+         #   rasmer_tile = stroki * tile_size
+         #   if row < 3:
+         #       surface.blit(self.first_level, (0, rasmer_tile))
+         #   elif row >= 3 and row <= 6:
+         #       surface.blit(self.second_level, (0, rasmer_tile))
+         #   elif row > 6:
+         #       surface.blit(self.third_level, (0, rasmer_tile))
+         #   else:
+         #       surface.blit(self.four_level, (0, rasmer_tile))
+        surface.blit(self.second_level, (0, 0))
 
 # класс уровня
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
         self.screen_shift = 0
+
+        self.fon = Fon()
 
         surface_layout = import_csv(level_data['surface'])
         self.surface_sprites = self.create_tile_group(surface_layout, 'surface')
@@ -149,6 +182,8 @@ class Level:
 
     # функция обновления tile уровня на экране
     def create(self):
+        self.fon.draw(self.display_surface)
+
         self.surface_sprites.update(self.screen_shift)
         self.surface_sprites.draw(self.display_surface)
 
@@ -157,3 +192,4 @@ class Level:
 
         self.cup_sprites.update(self.screen_shift)
         self.cup_sprites.draw(self.display_surface)
+
