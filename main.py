@@ -5,7 +5,7 @@ import pygame
 
 # загрузка настроек игры, уровней и различных классов
 from game_settings import *
-from level import Level
+from level import *
 from sound import Sound
 from cursor import Cursor
 
