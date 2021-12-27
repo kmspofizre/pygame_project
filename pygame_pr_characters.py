@@ -201,7 +201,10 @@ class Bullet(pygame.sprite.Sprite):
             self.vy = 0
         else:
             self.vy = math.ceil(paths[1] / (hypot / 4))
-        self.vx = math.ceil(paths[0] / (hypot / 4))
+        if paths[0] <= 20:
+            self.vx = 0
+        else:
+            self.vx = math.ceil(paths[0] / (hypot / 4))
 
     def update(self):
         # пуля перемещается на произведение скорости и расстояния и при соприкосновении
