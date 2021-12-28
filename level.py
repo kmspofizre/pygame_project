@@ -169,7 +169,10 @@ class Level:
                         sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
                     if type == 'cup':
-                        sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
+                        # sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
+                        surface_tile_list = import_cut_png('./data/cup/chirik.png')
+                        tile_surface = surface_tile_list[int(znach)]
+                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
                     if type == 'enemy':
                         if znach == '0':
