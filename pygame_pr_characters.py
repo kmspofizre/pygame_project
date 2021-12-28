@@ -3,6 +3,7 @@ import sys
 import math
 import pygame
 
+from level import *
 
 pygame.init()
 pygame.display.set_caption('Создание персонажей')
@@ -10,6 +11,9 @@ size = width, height = 500, 500
 screen = pygame.display.set_mode(size)
 SHOOTING_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(SHOOTING_EVENT, 3000)
+
+platforms = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
 
 
 def load_image(name, colorkey=None):
@@ -139,7 +143,7 @@ class GroundEnemy(Enemy):
         self.direction = 1
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, platforms):
+        if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
             self.walking()
         else:

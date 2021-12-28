@@ -13,7 +13,8 @@ screen_width = 1200
 # путь csv уровней
 level_0 = {'surface': './levels/level0/level0_surface.csv',
            'cup': './levels/level0/level0_cup.csv',
-           'bochki': './levels/level0/level0_bochki.csv'}
+           'bochki': './levels/level0/level0_bochki.csv',
+           'enemy': './levels/level0/level0_enemy.csv'}
 level_1 = {'surface': './levels/level0/level1_surface.csv'}
 level_2 = {'surface': './levels/level0/level2_surface.csv'}
 
@@ -144,6 +145,9 @@ class Level:
         cup_layout = import_csv(level_data['cup'])
         self.cup_sprites = self.create_tile_group(cup_layout, 'cup')
 
+        enemy_layout = import_csv(level_data['enemy'])
+        self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
+
     # функция создания уровня из tile
     def create_tile_group(self, lay, type):
         sprite_group = pygame.sprite.Group()
@@ -166,6 +170,14 @@ class Level:
 
                     if type == 'cup':
                         sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
+
+                    if type == 'enemy':
+                        if znach == '0':
+                            surface_tile_list = import_cut_png('./data/enemy/enemy.gif')
+                            tile_surface = surface_tile_list[0]
+                            sprite = SurfaceTile(tile_size, x, y, tile_surface)
+                        if znach == '1':
+                            continue
 
                     sprite_group.add(sprite)
 
@@ -192,4 +204,7 @@ class Level:
 
         self.cup_sprites.update(self.screen_shift)
         self.cup_sprites.draw(self.display_surface)
+
+        self.enemy_sprites.update(self.screen_shift)
+        self.enemy_sprites.draw(self.display_surface)
 
