@@ -168,8 +168,9 @@ if __name__ == '__main__':
     bullets = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
     main_character_gr = pygame.sprite.Group()
-    main_character = MainCharacter()
     platforms = pygame.sprite.Group()
+
+    main_character = MainCharacter()
     pl = Platform()
     ar = Archer(100, 250)
     ar1 = Archer(300, 380)

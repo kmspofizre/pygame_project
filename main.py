@@ -2,10 +2,10 @@ import os
 import sys
 import math
 import pygame
+import csv
 
 # загрузка настроек игры, уровней и различных классов
 from game_settings import *
-from level import *
 from sound import Sound
 from cursor import Cursor
 
@@ -18,21 +18,213 @@ SHOOTING_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(SHOOTING_EVENT, 3000)
 fps = 30
 
+tile_number_vertic = 12
+tile_size = 64
 
-def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+screen_height = tile_number_vertic * tile_size
+screen_width = 1200
+
+# путь csv уровней
+level_0 = {'surface': './levels/level0/level0_surface.csv',
+           'cup': './levels/level0/level0_cup.csv',
+           'bochki': './levels/level0/level0_bochki.csv',
+           'enemy': './levels/level0/level0_enemy.csv'}
+level_1 = {'surface': './levels/level0/level1_surface.csv'}
+level_2 = {'surface': './levels/level0/level2_surface.csv'}
+
+enemies = pygame.sprite.Group()
+
+# функция импортирования файла описания уровня csv
+def import_csv(path):
+    surface_spisok = []
+    with open(path) as filein:
+        level = csv.reader(filein, delimiter=',')
+        for row in level:
+            surface_spisok.append(list(row))
+        return surface_spisok
+
+
+# функция создания списка поверхностей tile из одного файла png
+def import_cut_png(path):
+    surface = pygame.image.load(path).convert_alpha()
+    tile_x = int(surface.get_size()[0] / tile_size)
+    tile_y = int(surface.get_size()[1] / tile_size)
+
+    cut_tiles = []
+    for row in range(tile_y):
+        for col in range(tile_x):
+            x = col * tile_size
+            y = row * tile_size
+            new = pygame.Surface((tile_size, tile_size), flags=pygame.SRCALPHA)
+            new.blit(surface, (0, 0), pygame.Rect(x, y, tile_size, tile_size))
+            cut_tiles.append(new)
+    return cut_tiles
+
+
+def load_image(name, color_key=None):
+    fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
-    image = pygame.image.load(fullname)
-    if colorkey is not None:
-        image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
+    image = pygame.image.load(fullname).convert()
+
+    if color_key is not None:
+        if color_key == -1:
+            color_key = image.get_at((0, 0))
+        image.set_colorkey(color_key)
     else:
         image = image.convert_alpha()
     return image
+
+
+# родительский класс tile
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, size, x, y):
+        super().__init__()
+        self.image = pygame.Surface((size, size))
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+    def update(self, shift):
+        self.rect.x += shift
+
+
+# класс tile поверхности
+class SurfaceTile(Tile):
+    def __init__(self, size, x, y, surface):
+        super().__init__(size, x, y)
+        self.image = surface
+
+
+# анимированый tile
+class AnimatedSprite(pygame.sprite.Sprite):
+    def __init__(self, sheet, columns, rows, x, y):
+        super().__init__(pygame.sprite.Group())
+        self.frames = []
+        self.cut_sheet(sheet, columns, rows)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(x, y)
+
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
+
+    def update(self, shift):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
+        self.rect.x += shift
+
+# класс фона
+class Fon():
+    def __init__(self):
+       # self.first_level = pygame.image.load('./data/fon/.png').convert()
+        self.second_level = pygame.image.load('./data/fon/second_level_fon.png').convert()
+       # self.third_level = pygame.image.load('./data/fon/.png').convert()
+       # self.four_level = pygame.image.load('./data/fon/.png').convert()
+
+     #   self.first_level = pygame.transform.scale(self.first_level, (screen_width, screen_height))
+        self.second_level = pygame.transform.scale(self.second_level, (screen_width, screen_height))
+     #   self.third_level = pygame.transform.scale(self.third_level, (screen_width, screen_height))
+     #   self.four_level = pygame.transform.scale(self.four_level, (screen_width, screen_height))
+
+    def draw(self, surface):
+        #for stroki in range(tile_number_vertic):
+         #   rasmer_tile = stroki * tile_size
+         #   if row < 3:
+         #       surface.blit(self.first_level, (0, rasmer_tile))
+         #   elif row >= 3 and row <= 6:
+         #       surface.blit(self.second_level, (0, rasmer_tile))
+         #   elif row > 6:
+         #       surface.blit(self.third_level, (0, rasmer_tile))
+         #   else:
+         #       surface.blit(self.four_level, (0, rasmer_tile))
+        surface.blit(self.second_level, (0, 0))
+
+# класс уровня
+class Level:
+    def __init__(self, level_data, surface):
+        self.display_surface = surface
+        self.screen_shift = 0
+
+        self.fon = Fon()
+
+        surface_layout = import_csv(level_data['surface'])
+        self.surface_sprites = self.create_tile_group(surface_layout, 'surface')
+
+        bochki_layout = import_csv(level_data['bochki'])
+        self.bochki_sprites = self.create_tile_group(bochki_layout, 'bochki')
+
+        cup_layout = import_csv(level_data['cup'])
+        self.cup_sprites = self.create_tile_group(cup_layout, 'cup')
+
+        enemy_layout = import_csv(level_data['enemy'])
+        self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
+
+    # функция создания уровня из tile
+    def create_tile_group(self, lay, type):
+        sprite_group = pygame.sprite.Group()
+
+        for r_index, row in enumerate(lay):
+            for c_index, znach in enumerate(row):
+                if znach != '-1':
+                    x = c_index * tile_size
+                    y = r_index * tile_size
+
+                    if type == 'surface':
+                        surface_tile_list = import_cut_png('./data/surface/surface.png')
+                        tile_surface = surface_tile_list[int(znach)]
+                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
+
+                    if type == 'bochki':
+                        surface_tile_list = import_cut_png('./data/bochki/bochka1.png')
+                        tile_surface = surface_tile_list[int(znach)]
+                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
+
+                    if type == 'cup':
+                        # sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
+                        surface_tile_list = import_cut_png('./data/cup/chirik.png')
+                        tile_surface = surface_tile_list[int(znach)]
+                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
+
+                    if type == 'enemy':
+                        if znach == '0':
+                            surface_tile_list = import_cut_png('./data/enemy/enemy.gif')
+                            tile_surface = surface_tile_list[0]
+                            sprite = GroundEnemy(x, y, 40, tile_surface)
+                        if znach == '1':
+                            continue
+
+                    sprite_group.add(sprite)
+
+        return sprite_group
+
+    # функция сдвига tile-ов в зависимости от движения игрока (камера)
+    def sdvig_x(self, direction_x):
+        if direction_x < 0:
+            self.screen_shift = 5
+        elif direction_x > 0:
+            self.screen_shift = -5
+        else:
+            self.screen_shift = 0
+
+    # функция обновления tile уровня на экране
+    def create(self):
+        self.fon.draw(self.display_surface)
+
+        self.surface_sprites.update(self.screen_shift)
+        self.surface_sprites.draw(self.display_surface)
+
+        self.bochki_sprites.update(self.screen_shift)
+        self.bochki_sprites.draw(self.display_surface)
+
+        self.cup_sprites.update(self.screen_shift)
+        self.cup_sprites.draw(self.display_surface)
+
+        self.enemy_sprites.update(self.screen_shift)
+        self.enemy_sprites.draw(self.display_surface)
 
 
 class MainCharacter(pygame.sprite.Sprite):
@@ -81,14 +273,6 @@ class MainCharacter(pygame.sprite.Sprite):
         self.rect = self.rect.move(0, -100)
 
 
-class Platform(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(platforms)
-        self.image = pygame.Surface((500, 100), pygame.SRCALPHA, 32)
-        pygame.draw.rect(self.image, pygame.Color('grey'), (0, 0, 500, 100))
-        self.rect = pygame.Rect(0, 400, 500, 200)
-
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(enemies)
@@ -102,13 +286,14 @@ class Archer(Enemy):
         self.rect = pygame.Rect(x, y, 20, 20)
         self.moving = False
 
-    def update(self, *args):
+    def update(self, shift):
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
         else:
             self.moving = False
         if not self.moving:
             self.rect = self.rect.move(0, 1)
+        self.rect.x += shift
 
     def shoot(self):
         Bullet(self.rect.x, self.rect.y)
@@ -137,17 +322,18 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class GroundEnemy(Enemy):
-    def __init__(self, x, y, walking_range):
+    def __init__(self, x, y, walking_range, surface):
         super().__init__()
-        self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
-        pygame.draw.rect(self.image, pygame.Color('pink'), (0, 0, 20, 20))
+        self.image = surface
+        #self.image = pygame.Surface((64, 64), pygame.SRCALPHA, 32)
+        #pygame.draw.rect(self.image, pygame.Color('pink'), (0, 0, 64, 64))
         self.start_x = x
-        self.rect = pygame.Rect(x, y, 20, 20)
+        self.rect = pygame.Rect(x, y, 64, 64)
         self.walking_range = walking_range
         self.moving = False
         self.direction = 1
 
-    def update(self, *args):
+    def update(self, shift):
         #if pygame.sprite.spritecollideany(self, platforms):
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
@@ -156,6 +342,8 @@ class GroundEnemy(Enemy):
             self.moving = False
         if not self.moving:
             self.rect = self.rect.move(0, 1)
+
+        self.rect.x += shift
 
     def walking(self):
         if self.rect.x + 1 > self.start_x + self.walking_range:
@@ -173,14 +361,13 @@ if __name__ == '__main__':
     level = Level(level_0, screen)
 
     bullets = pygame.sprite.Group()
-    enemies = pygame.sprite.Group()
-    main_character_gr = pygame.sprite.Group()
-    main_character = MainCharacter()
     platforms = pygame.sprite.Group()
-    pl = Platform()
+    main_character_gr = pygame.sprite.Group()
+
+    main_character = MainCharacter()
     ar = Archer(100, 250)
     ar1 = Archer(300, 380)
-    we = GroundEnemy(150, 350, 40)
+    #we = GroundEnemy(150, 350, 40)
     archers = ar, ar1
 
     # инициализация курсора
@@ -190,7 +377,7 @@ if __name__ == '__main__':
 
     # инициализация звука и музыки
     Sound = Sound()
-    Sound.play('game1', 10, 0.3)
+    Sound.play('game4', 10, 0.3)
 
     #surface_color = "#7ec0ee"
 
@@ -232,12 +419,14 @@ while running:
             cursor.draw(screen)
 
         main_character.update()
-        enemies.update()
+       # enemies.update(0)
+
         bullets.update()
         bullets.draw(screen)
         main_character_gr.draw(screen)
-        enemies.draw(screen)
-        #platforms.draw(screen)
+
+        #enemies.draw(screen)
+
         clock1.tick(fps)
        # pygame.display.flip()
         pygame.display.update()
