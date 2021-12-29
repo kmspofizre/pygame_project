@@ -5,8 +5,11 @@ import math
 import pygame
 
 
-size = width, height = 500, 500
-screen = pygame.display.set_mode(size)
+bullets = pygame.sprite.Group()
+shurikens = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
+main_character_gr = pygame.sprite.Group()
+platforms = pygame.sprite.Group()
 
 
 def load_image(name, colorkey=None):
@@ -154,7 +157,7 @@ class Archer(Enemy):
 
     def update(self, *args):
 
-        # проверка, стоит ли лучник на земле, если нет - то падение
+        # проверка, стоит ли лучник на земле, если нет - падение
 
         if pygame.sprite.spritecollideany(self, platforms):
             self.moving = True
@@ -248,7 +251,7 @@ class GroundEnemy(Enemy):
     def update(self, *args):
         if pygame.sprite.spritecollideany(self, platforms):
 
-            # если стоит на замле, то запускается цикличны1 обход
+            # если стоит на земле, то запускается цикличный обход
 
             self.moving = True
             self.walking()
@@ -282,30 +285,9 @@ def game_over():
     running = False
 
 
-# инициализация игры
-SHOOTING_EVENT = pygame.USEREVENT + 1
-pygame.time.set_timer(SHOOTING_EVENT, 3000)
-bullets = pygame.sprite.Group()
-shurikens = pygame.sprite.Group()
-enemies = pygame.sprite.Group()
-main_character_gr = pygame.sprite.Group()
 main_character = MainCharacter()
-platforms = pygame.sprite.Group()
 pl = Platform()  # вместо нее должна быть поверхность игрового мира
 ar = Archer(100, 250)
-archers = [ar]  # список стрелков
 we = GroundEnemy(150, 350, 40)
-running = True
 enemies_sp = [we, ar]  # список врагов
-
-
-# в игровой цикл
-main_character.update()
-enemies.update()
-shurikens.update()
-bullets.update()
-bullets.draw(screen)
-shurikens.draw(screen)
-main_character_gr.draw(screen)
-enemies.draw(screen)
-platforms.draw(screen)
+archers = [ar]  # список стрелков
