@@ -117,6 +117,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
         self.rect.x += shift
 
+
 # класс фона
 class Fon():
     def __init__(self):
@@ -142,6 +143,7 @@ class Fon():
          #   else:
          #       surface.blit(self.four_level, (0, rasmer_tile))
         surface.blit(self.second_level, (0, 0))
+
 
 # класс уровня
 class Level:
@@ -184,10 +186,10 @@ class Level:
                         sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
                     if type == 'cup':
-                        # sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
-                        surface_tile_list = import_cut_png('./data/cup/chirik.png')
-                        tile_surface = surface_tile_list[int(znach)]
-                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
+                        sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
+                        #surface_tile_list = import_cut_png('./data/cup/chirik.png')
+                        #tile_surface = surface_tile_list[int(znach)]
+                        #sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
                     if type == 'enemy':
                         if znach == '0':
@@ -450,6 +452,7 @@ class GroundEnemy(Enemy):
             self.direction = 1
         self.rect = self.rect.move(1 * self.direction, 0)
 
+
 def game_over():
     global running
     running = False
@@ -479,7 +482,7 @@ if __name__ == '__main__':
 
     # инициализация звука и музыки
     Sound = Sound()
-    Sound.play('game4', 10, 0.3)
+    #Sound.play('game4', 10, 0.3)
 
     #surface_color = "#7ec0ee"
 
