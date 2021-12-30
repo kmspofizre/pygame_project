@@ -9,7 +9,7 @@ import csv
 from sound import Sound
 from cursor import Cursor
 
-# surface_color = "#7ec0ee"
+surface_color = "#7ec0ee"
 
 # путь csv уровней
 level_0 = {'surface': './levels/level0/level0_surface.csv',
@@ -450,6 +450,61 @@ class GroundEnemy(Enemy):
         self.rect = self.rect.move(1 * self.direction, 0)
 
 
+class Menu:
+    def __init__(self, menu_item):
+        self.menu_item = menu_item
+
+    def render(self, screen, font, num_menu_item):
+        for i in self.menu_item:
+            if num_menu_item == i[5]:
+                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1] - 30))
+            else:
+                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1] - 30))
+
+    def menu(self):
+        active_menu = True
+        pygame.mouse.set_visible(True)
+        pygame.key.set_repeat(0, 0)
+        font_menu = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
+        menu_item = 0
+        while active_menu:
+            screen.fill((0, 100, 200))
+
+            mouse_coords = pygame.mouse.get_pos()
+            for i in self.menu_item:
+                if mouse_coords[0] > i[0] and mouse_coords[0] < i[0] + 155 and mouse_coords[1] > i[1] and mouse_coords[1] < i[1] + 50:
+                    menu_item = i[5]
+            self.render(screen, font_menu, menu_item)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        if menu_item == 0:
+                            active_menu = False
+                        if menu_item == 1:
+                            sys.exit()
+                    if event.key == pygame.K_ESCAPE:
+                        sys.exit()
+                    if event.key == pygame.K_UP:
+                        if menu_item > 0:
+                            menu_item -= 1
+                    if event.key == pygame.K_DOWN:
+                        if menu_item < len(self.menu_item) - 1:
+                            menu_item += 1
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if menu_item == 0:
+                        active_menu = False
+                    if menu_item == 1:
+                        print('rules')
+                    if menu_item == 2:
+                        sys.exit()
+
+            screen.blit(screen, (0, 30))
+            pygame.display.update()
+
+
 def game_over():
     global running
     running = False
@@ -466,6 +521,7 @@ def start_level0():
                 running = False
                 pygame.quit()
                 sys.exit()
+
             if event.type == SHOOTING_EVENT:
                 for j in range(len(archers)):
                     archers[j].shoot()
@@ -478,6 +534,7 @@ def start_level0():
                 main_character.stop_walking(event.key)
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
+
 
             # обработчик камеры
             if keys[pygame.K_RIGHT]:
@@ -508,7 +565,8 @@ def start_level0():
 
 if __name__ == '__main__':
     pygame.init()
-    pygame.display.set_caption('КВАДРАТ В Бэдламе')
+
+    pygame.display.set_caption('Приключение Лю Кэнга')
     screen = pygame.display.set_mode((screen_width, screen_height))
 
     SHOOTING_EVENT = pygame.USEREVENT + 1
@@ -524,6 +582,13 @@ if __name__ == '__main__':
     cursor = pygame.sprite.Group()
     cur = Cursor(cursor)
 
+    #создание меню
+    menu_items = [(520, 210, u'Game', 'yellow', 'red', 0),
+                  (530, 280, u'Rules', 'yellow', 'green', 1),
+                  (540, 350, u'Quit', 'yellow', 'black', 2)]
+    game = Menu(menu_items)
+    game.menu()
+
     # инициализация уровня
     level = Level(level_0, screen)
 
@@ -535,4 +600,4 @@ if __name__ == '__main__':
 
     start_level0()
 
-    pygame.quit()
+pygame.quit()
