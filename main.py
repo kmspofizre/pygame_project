@@ -456,6 +456,10 @@ class Menu:
 
 
     def render(self, screen, font, num_menu_item):
+        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+        screen.blit(font.render('Copyright 2021-2022', 1, 'red'), (450, 700))
+
+        font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
         for i in self.menu_item:
             if num_menu_item == i[5]:
                 screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1] - 70))
