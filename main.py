@@ -16,8 +16,11 @@ level_0 = {'surface': './levels/level0/level0_surface.csv',
            'cup': './levels/level0/level0_cup.csv',
            'bochki': './levels/level0/level0_bochki.csv',
            'enemy': './levels/level0/level0_enemy.csv'}
-level_1 = {'surface': './levels/level0/level1_surface.csv'}
-level_2 = {'surface': './levels/level0/level2_surface.csv'}
+level_1 = {'surface': './levels/level1/level1_surface.csv',
+           'cup': './levels/level1/level1_cup.csv',
+           'bochki': './levels/level1/level1_bochki.csv',
+           'enemy': './levels/level1/level1_enemy.csv'}
+level_2 = {'surface': './levels/level2/level2_surface.csv'}
 
 tile_number_vertic = 12
 tile_size = 64
@@ -477,9 +480,13 @@ class Menu:
             screen.fill((0, 100, 200))
             mouse_coords = pygame.mouse.get_pos()
 
+            if pygame.mouse.get_focused():
+                cursor.draw(screen)
+
             for i in self.menu_item:
                 if mouse_coords[0] > i[0] and mouse_coords[0] < i[0] + 155 and mouse_coords[1] > i[1] and mouse_coords[1] < i[1] + 50:
                     menu_item = i[5]
+
             self.render(screen, font_menu, menu_item)
 
             for event in pygame.event.get():
@@ -511,9 +518,6 @@ class Menu:
                     if menu_item == 3:
                         sys.exit()
 
-            if pygame.mouse.get_focused():
-                cursor.draw(screen)
-
             pygame.display.update()
 
 
@@ -522,7 +526,8 @@ def game_over():
     running = False
 
 
-def start_level0():
+
+def start_level():
     sound.play('game4', 10, 0.3)
 
     running = True
@@ -531,9 +536,9 @@ def start_level0():
             keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
                 running = False
-                pygame.quit()
-                sys.exit()
-
+                sound.stop('game4')
+               # pygame.quit()
+               # sys.exit()
             if event.type == SHOOTING_EVENT:
                 for j in range(len(archers)):
                     archers[j].shoot()
@@ -546,7 +551,6 @@ def start_level0():
                 main_character.stop_walking(event.key)
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
-
 
             # обработчик камеры
             if keys[pygame.K_RIGHT]:
@@ -576,6 +580,8 @@ def start_level0():
 
 
 if __name__ == '__main__':
+    level_change = 0
+
     pygame.init()
 
     pygame.display.set_caption('Приключение Лю Кэнга')
@@ -600,17 +606,24 @@ if __name__ == '__main__':
                   (540, 350, u'Best', 'yellow', 'brown', 2),
                   (550, 420, u'Quit', 'yellow', 'black', 3)]
     game = Menu(menu_items)
-    game.menu()
 
-    # инициализация уровня
-    level = Level(level_0, screen)
 
-    main_character = MainCharacter()
-    ar = Archer(100, 250)
-    archers = [ar]  # список стрелков
-    # we = GroundEnemy(150, 350, 40)
-    # enemies_sp = [we, ar]  # список врагов
+    running = True
+    while running:
+        game.menu()
+        # инициализация уровня
+        if level_change == 0:
+            level = Level(level_0, screen)
+        elif level_change == 1:
+            level = Level(level_1, screen)
 
-    start_level0()
+        main_character = MainCharacter()
+        ar = Archer(100, 250)
+        archers = [ar]  # список стрелков
+        # we = GroundEnemy(150, 350, 40)
+        # enemies_sp = [we, ar]  # список врагов
+
+        start_level()
+        level_change = 1
 
 pygame.quit()
