@@ -5,34 +5,9 @@ import pygame
 import csv
 
 # загрузка настроек игры, уровней и различных классов
-from game_settings import *
+#from game_settings import *
 from sound import Sound
 from cursor import Cursor
-
-#import characters
-
-pygame.init()
-pygame.display.set_caption('КВАДРАТ В Бэдламе')
-screen = pygame.display.set_mode((screen_width, screen_height))
-SHOOTING_EVENT = pygame.USEREVENT + 1
-pygame.time.set_timer(SHOOTING_EVENT, 3000)
-fps = 30
-
-tile_number_vertic = 12
-tile_size = 64
-
-screen_height = tile_number_vertic * tile_size
-screen_width = 1200
-
-# путь csv уровней
-level_0 = {'surface': './levels/level0/level0_surface.csv',
-           'cup': './levels/level0/level0_cup.csv',
-           'bochki': './levels/level0/level0_bochki.csv',
-           'enemy': './levels/level0/level0_enemy.csv'}
-level_1 = {'surface': './levels/level0/level1_surface.csv'}
-level_2 = {'surface': './levels/level0/level2_surface.csv'}
-
-enemies = pygame.sprite.Group()
 
 # функция импортирования файла описания уровня csv
 def import_csv(path):
@@ -459,9 +434,32 @@ def game_over():
 
 
 if __name__ == '__main__':
-    running = True
-    clock1 = pygame.time.Clock()
+    pygame.init()
 
+    tile_number_vertic = 12
+    tile_size = 64
+
+    screen_height = tile_number_vertic * tile_size
+    screen_width = 1200
+
+    pygame.display.set_caption('КВАДРАТ В Бэдламе')
+    # screen2 = pygame.display.set_mode((screen_width, screen_height))
+    screen = pygame.display.set_mode((screen_width, screen_height))
+
+    SHOOTING_EVENT = pygame.USEREVENT + 1
+    pygame.time.set_timer(SHOOTING_EVENT, 3000)
+    clock1 = pygame.time.Clock()
+    fps = 30
+
+    # путь csv уровней
+    level_0 = {'surface': './levels/level0/level0_surface.csv',
+               'cup': './levels/level0/level0_cup.csv',
+               'bochki': './levels/level0/level0_bochki.csv',
+               'enemy': './levels/level0/level0_enemy.csv'}
+    level_1 = {'surface': './levels/level0/level1_surface.csv'}
+    level_2 = {'surface': './levels/level0/level2_surface.csv'}
+
+    enemies = pygame.sprite.Group()
     # инициализация уровня
     level = Level(level_0, screen)
 
@@ -486,9 +484,8 @@ if __name__ == '__main__':
 
     #surface_color = "#7ec0ee"
 
+running = True
 while running:
-       # screen.fill(pygame.Color(surface_color))
-
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
