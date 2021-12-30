@@ -454,6 +454,7 @@ class Menu:
     def __init__(self, menu_item):
         self.menu_item = menu_item
 
+
     def render(self, screen, font, num_menu_item):
         for i in self.menu_item:
             if num_menu_item == i[5]:
@@ -462,15 +463,16 @@ class Menu:
                 screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1] - 70))
 
     def menu(self):
-        active_menu = True
         pygame.mouse.set_visible(True)
+        sound.play('game2', 10, 0.3)
+        active_menu = True
         pygame.key.set_repeat(0, 0)
         font_menu = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
         menu_item = 0
         while active_menu:
             screen.fill((0, 100, 200))
-
             mouse_coords = pygame.mouse.get_pos()
+
             for i in self.menu_item:
                 if mouse_coords[0] > i[0] and mouse_coords[0] < i[0] + 155 and mouse_coords[1] > i[1] and mouse_coords[1] < i[1] + 50:
                     menu_item = i[5]
@@ -482,6 +484,7 @@ class Menu:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         if menu_item == 0:
+                            sound.stop('game2')
                             active_menu = False
                         if menu_item == 1:
                             sys.exit()
@@ -495,6 +498,7 @@ class Menu:
                             menu_item += 1
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if menu_item == 0:
+                        sound.stop('game2')
                         active_menu = False
                     if menu_item == 1:
                         print('rules')
@@ -503,7 +507,9 @@ class Menu:
                     if menu_item == 3:
                         sys.exit()
 
-            screen.blit(screen, (0, 30))
+            if pygame.mouse.get_focused():
+                cursor.draw(screen)
+
             pygame.display.update()
 
 
