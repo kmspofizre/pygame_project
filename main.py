@@ -3,6 +3,7 @@ import sys
 import math
 import pygame
 import csv
+#import pygame_menu
 
 # загрузка настроек игры, уровней и различных классов
 from game_settings import *
@@ -457,10 +458,26 @@ def game_over():
     global running
     running = False
 
+#def set_difficulty(value, difficulty):
+#    pass
+
+#def start_the_game():
+#    pass
+
+#def menu():
+  #  menu = pygame_menu.Menu('Стартовое меню', 450, 300, theme=pygame_menu.themes.THEME_BLUE)
+  #  menu.add.text_input('Имя :', default='Иван Иванов')
+  #  menu.add.selector('Сложность игры :', [('Трудно', 1), ('Легко', 2), ('Бог', 3)], onchange=set_difficulty)
+  #  menu.add.button('Игра', start_the_game())
+  #  menu.add.button('Выход', pygame_menu.events.EXIT)
+  #  menu.mainloop(screen)
+
 
 if __name__ == '__main__':
     running = True
     clock1 = pygame.time.Clock()
+
+#    menu()
 
     # инициализация уровня
     level = Level(level_0, screen)
@@ -537,4 +554,3 @@ while running:
         pygame.display.update()
 
 pygame.quit()
-
