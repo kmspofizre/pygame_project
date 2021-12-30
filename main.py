@@ -457,9 +457,9 @@ class Menu:
     def render(self, screen, font, num_menu_item):
         for i in self.menu_item:
             if num_menu_item == i[5]:
-                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1] - 30))
+                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1] - 70))
             else:
-                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1] - 30))
+                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1] - 70))
 
     def menu(self):
         active_menu = True
@@ -499,6 +499,8 @@ class Menu:
                     if menu_item == 1:
                         print('rules')
                     if menu_item == 2:
+                        print('best')
+                    if menu_item == 3:
                         sys.exit()
 
             screen.blit(screen, (0, 30))
@@ -585,7 +587,8 @@ if __name__ == '__main__':
     #создание меню
     menu_items = [(520, 210, u'Game', 'yellow', 'red', 0),
                   (530, 280, u'Rules', 'yellow', 'green', 1),
-                  (540, 350, u'Quit', 'yellow', 'black', 2)]
+                  (540, 350, u'Best', 'yellow', 'brown', 2),
+                  (550, 420, u'Quit', 'yellow', 'black', 3)]
     game = Menu(menu_items)
     game.menu()
 
