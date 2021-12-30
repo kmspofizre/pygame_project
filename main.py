@@ -9,6 +9,28 @@ import csv
 from sound import Sound
 from cursor import Cursor
 
+# surface_color = "#7ec0ee"
+
+# путь csv уровней
+level_0 = {'surface': './levels/level0/level0_surface.csv',
+           'cup': './levels/level0/level0_cup.csv',
+           'bochki': './levels/level0/level0_bochki.csv',
+           'enemy': './levels/level0/level0_enemy.csv'}
+level_1 = {'surface': './levels/level0/level1_surface.csv'}
+level_2 = {'surface': './levels/level0/level2_surface.csv'}
+
+tile_number_vertic = 12
+tile_size = 64
+
+screen_height = tile_number_vertic * tile_size
+screen_width = 1200
+
+enemies = pygame.sprite.Group()
+bullets = pygame.sprite.Group()
+shurikens = pygame.sprite.Group()
+main_character_gr = pygame.sprite.Group()
+
+
 # функция импортирования файла описания уровня csv
 def import_csv(path):
     surface_spisok = []
@@ -433,59 +455,11 @@ def game_over():
     running = False
 
 
-if __name__ == '__main__':
-    pygame.init()
+def start_level0():
+    sound.play('game4', 10, 0.3)
 
-    tile_number_vertic = 12
-    tile_size = 64
-
-    screen_height = tile_number_vertic * tile_size
-    screen_width = 1200
-
-    pygame.display.set_caption('КВАДРАТ В Бэдламе')
-    # screen2 = pygame.display.set_mode((screen_width, screen_height))
-    screen = pygame.display.set_mode((screen_width, screen_height))
-
-    SHOOTING_EVENT = pygame.USEREVENT + 1
-    pygame.time.set_timer(SHOOTING_EVENT, 3000)
-    clock1 = pygame.time.Clock()
-    fps = 30
-
-    # путь csv уровней
-    level_0 = {'surface': './levels/level0/level0_surface.csv',
-               'cup': './levels/level0/level0_cup.csv',
-               'bochki': './levels/level0/level0_bochki.csv',
-               'enemy': './levels/level0/level0_enemy.csv'}
-    level_1 = {'surface': './levels/level0/level1_surface.csv'}
-    level_2 = {'surface': './levels/level0/level2_surface.csv'}
-
-    enemies = pygame.sprite.Group()
-    # инициализация уровня
-    level = Level(level_0, screen)
-
-    bullets = pygame.sprite.Group()
-    shurikens = pygame.sprite.Group()
-    main_character_gr = pygame.sprite.Group()
-
-    main_character = MainCharacter()
-    ar = Archer(100, 250)
-    archers = [ar]  # список стрелков
-    #we = GroundEnemy(150, 350, 40)
-    #enemies_sp = [we, ar]  # список врагов
-
-    # инициализация курсора
-    pygame.mouse.set_visible(False)
-    cursor = pygame.sprite.Group()
-    cur = Cursor(cursor)
-
-    # инициализация звука и музыки
-    Sound = Sound()
-    #Sound.play('game4', 10, 0.3)
-
-    #surface_color = "#7ec0ee"
-
-running = True
-while running:
+    running = True
+    while running:
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
@@ -505,7 +479,7 @@ while running:
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
 
-        # обработчик камеры
+            # обработчик камеры
             if keys[pygame.K_RIGHT]:
                 level.sdvig_x(1)
             elif keys[pygame.K_LEFT]:
@@ -521,16 +495,44 @@ while running:
             cursor.draw(screen)
 
         main_character.update()
-       # enemies.update(0)
+        # enemies.update(0)
         shurikens.update()
         bullets.update()
         bullets.draw(screen)
         main_character_gr.draw(screen)
-
-        #enemies.draw(screen)
-
+        # enemies.draw(screen)
         clock1.tick(fps)
-       # pygame.display.flip()
+        # pygame.display.flip()
         pygame.display.update()
 
-pygame.quit()
+
+if __name__ == '__main__':
+    pygame.init()
+    pygame.display.set_caption('КВАДРАТ В Бэдламе')
+    screen = pygame.display.set_mode((screen_width, screen_height))
+
+    SHOOTING_EVENT = pygame.USEREVENT + 1
+    pygame.time.set_timer(SHOOTING_EVENT, 3000)
+    clock1 = pygame.time.Clock()
+    fps = 30
+
+    # инициализация звука и музыки
+    sound = Sound()
+
+    # инициализация курсора
+    pygame.mouse.set_visible(False)
+    cursor = pygame.sprite.Group()
+    cur = Cursor(cursor)
+
+    # инициализация уровня
+    level = Level(level_0, screen)
+
+    main_character = MainCharacter()
+    ar = Archer(100, 250)
+    archers = [ar]  # список стрелков
+    # we = GroundEnemy(150, 350, 40)
+    # enemies_sp = [we, ar]  # список врагов
+
+    start_level0()
+
+    pygame.quit()
