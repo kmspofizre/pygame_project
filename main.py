@@ -526,7 +526,6 @@ def game_over():
     running = False
 
 
-
 def start_level():
     sound.play('game4', 10, 0.3)
 
@@ -584,7 +583,7 @@ if __name__ == '__main__':
 
     pygame.init()
 
-    pygame.display.set_caption('Приключение Лю Кэнга')
+
     screen = pygame.display.set_mode((screen_width, screen_height))
 
     SHOOTING_EVENT = pygame.USEREVENT + 1
@@ -595,7 +594,7 @@ if __name__ == '__main__':
     # инициализация звука и музыки
     sound = Sound()
 
-    # инициализация курсора
+    # инициализация курсора pygame.display.set_caption('Приключение Лю Кэнга')
     pygame.mouse.set_visible(False)
     cursor = pygame.sprite.Group()
     cur = Cursor(cursor)
