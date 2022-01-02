@@ -232,11 +232,16 @@ class Level:
 class MainCharacter(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(main_character_gr)
-        self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
-        pygame.draw.rect(self.image, pygame.Color('blue'), (0, 0, 20, 20))
+       # self.sprite = AnimatedSprite(load_image("./data/hero/lukang.gif"), 6, 1, 2, 350)
+     #   main_character_gr.add(self.sprite)
+        self.image = load_image("./data/hero/lukang.gif")
+      #  pygame.draw.rect(self.image, pygame.Color('blue'), (0, 0, 64, 64))
+        #self.rect = AnimatedSprite(load_image("./data/hero/lukang.gif"), 6, 1, 2, 350)
+
         self.items = dict()
         self.hp = 50
-        self.rect = pygame.Rect(2, 350, 20, 20)
+
+        self.rect = pygame.Rect(2, 350, 64, 64)
         self.moving = False
         self.rising = False
         self.jumping = False
@@ -264,9 +269,17 @@ class MainCharacter(pygame.sprite.Sprite):
         if self.left and self.right:
             pass
         elif self.left:
-            self.rect = self.rect.move(-3, 0)
+            self.rect = self.rect.move(-1, 0)
+   # камера
+            level.sdvig_x(-1)
         elif self.right:
-            self.rect = self.rect.move(3, 0)
+            self.rect = self.rect.move(1, 0)
+   # камера
+            level.sdvig_x(1)
+   # камера
+        else:
+            level.sdvig_x(0)
+
         if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
             now = pygame.time.get_ticks()  # атака перезаряжается
             if now - self.last >= 3000:
@@ -278,6 +291,7 @@ class MainCharacter(pygame.sprite.Sprite):
             self.left = True
         elif direction == pygame.K_RIGHT:
             self.right = True
+
 
     def stop_walking(self, direction):
         if direction == pygame.K_LEFT:
@@ -295,9 +309,7 @@ class MainCharacter(pygame.sprite.Sprite):
         self.rect = self.rect.move(0, -5)
 
     def get_damage(self):
-
         # получение урона от пуль и ходячих, если здоровье на нуле, то игра окончена
-
         self.hp -= 1
         if self.hp == 0:
             game_over()
@@ -552,12 +564,12 @@ def start_level():
                 cur.rect = event.pos
 
             # обработчик камеры
-            if keys[pygame.K_RIGHT]:
-                level.sdvig_x(1)
-            elif keys[pygame.K_LEFT]:
-                level.sdvig_x(-1)
-            else:
-                level.sdvig_x(0)
+         #   if keys[pygame.K_RIGHT]:
+          #      level.sdvig_x(1)
+          #  elif keys[pygame.K_LEFT]:
+          #      level.sdvig_x(-1)
+          #  else:
+          #      level.sdvig_x(0)
 
         # вызов метода обновления экрана
         level.create()
@@ -589,7 +601,7 @@ if __name__ == '__main__':
     SHOOTING_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(SHOOTING_EVENT, 3000)
     clock1 = pygame.time.Clock()
-    fps = 30
+    fps = 25
 
     # инициализация звука и музыки
     sound = Sound()
