@@ -40,10 +40,9 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and main_character.moving:
                     main_character.jump()
-                if main_character.moving or main_character.jumping:
-                    main_character.walking(event.key)
                 if event.key == pygame.K_a:
                     main_character.attack()
+                main_character.walking(event.key)
             if event.type == pygame.KEYUP:
                 main_character.stop_walking(event.key)
         main_character.update()
