@@ -49,6 +49,7 @@ class MainCharacter(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, platforms):  # если находится на земле, то может прыгать
             self.moving = True                               # self.moving - флаг нахождения на платформе
             self.jumping = False
+            self.rising = False
         else:
             self.moving = False
         if not self.moving:                                  # если не на земле
