@@ -87,7 +87,7 @@ class MainCharacter(pygame.sprite.Sprite):
     def jump(self):
 
         # переменная jumping позволяет передвигаться в воздухе
-        self.rising = True
+        self.rising = True  # rising - взлет, rising_timer - таймер взлета, которое изменяется в update
         self.rising_timer += 100
         self.jumping = True
         self.moving = False
