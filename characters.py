@@ -46,18 +46,18 @@ class MainCharacter(pygame.sprite.Sprite):
         self.rising_timer = 0
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, platforms):
-            self.moving = True
+        if pygame.sprite.spritecollideany(self, platforms):  # если находится на земле, то может прыгать
+            self.moving = True                               # self.moving - флаг нахождения на платформе
             self.jumping = False
         else:
             self.moving = False
-        if not self.moving:
-            if not self.rising:
-                self.rect = self.rect.move(0, 3)
+        if not self.moving:                                  # если не на земле
+            if not self.rising:                              # если не взлетает
+                self.rect = self.rect.move(0, 3)             # падает
                 self.moving = False
             else:
-                self.rect = self.rect.move(0, -5)
-                self.rising_timer -= 5
+                self.rect = self.rect.move(0, -5)            # взлетает до тех пор, пока self.rising_timer не ноль
+                self.rising_timer -= 5                       # rising_timer задается в функции jump
                 if self.rising_timer == 0:
                     self.rising = False
         if self.left and self.right:

@@ -19,7 +19,7 @@ pygame.time.set_timer(SHOOTING_EVENT, 3000)
 main_character = characters.main_character
 pl = characters.pl
 ar = characters.ar
-archers = [ar]  # список стрелков
+archers = characters.archers  # список стрелков
 we = characters.we
 running = True
 enemies_sp = [we, ar]  # список врагов
