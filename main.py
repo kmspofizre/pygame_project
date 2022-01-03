@@ -297,31 +297,32 @@ class MainCharacter(pygame.sprite.Sprite):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
-        if pygame.sprite.spritecollideany(self, level.surface_sprites):
-            self.moving = True
+        if pygame.sprite.spritecollideany(self, level.surface_sprites):  # если находится на земле, то может прыгать
+            self.moving = True                               # self.moving - флаг нахождения на платформе
             self.jumping = False
+            self.rising = False
         else:
             self.moving = False
-        if not self.moving:
-            if not self.rising:
-                self.rect = self.rect.move(0, 3)
+        if not self.moving:                                  # если не на земле
+            if not self.rising:                              # если не взлетает
+                self.rect = self.rect.move(0, 3)             # падает
                 self.moving = False
             else:
-                self.rect = self.rect.move(0, -5)
-                self.rising_timer -= 5
+                self.rect = self.rect.move(0, -5)            # взлетает до тех пор, пока self.rising_timer не ноль
+                self.rising_timer -= 5                       # rising_timer задается в функции jump
                 if self.rising_timer == 0:
                     self.rising = False
         if self.left and self.right:
             pass
         elif self.left:
             self.rect = self.rect.move(-1, 0)
-   # камера
+            # камера
             level.sdvig_x(-1)
         elif self.right:
             self.rect = self.rect.move(1, 0)
-   # камера
+            # камера
             level.sdvig_x(1)
-   # камера
+        # камера
         else:
             level.sdvig_x(0)
 
@@ -337,7 +338,6 @@ class MainCharacter(pygame.sprite.Sprite):
         elif direction == pygame.K_RIGHT:
             self.right = True
 
-
     def stop_walking(self, direction):
         if direction == pygame.K_LEFT:
             self.left = False
@@ -347,14 +347,16 @@ class MainCharacter(pygame.sprite.Sprite):
     def jump(self):
 
         # переменная jumping позволяет передвигаться в воздухе
-        self.rising = True
+        self.rising = True  # rising - взлет, rising_timer - таймер взлета, которое изменяется в update
         self.rising_timer += 100
         self.jumping = True
         self.moving = False
         self.rect = self.rect.move(0, -5)
 
     def get_damage(self):
+
         # получение урона от пуль и ходячих, если здоровье на нуле, то игра окончена
+
         self.hp -= 1
         if self.hp == 0:
             game_over()
@@ -363,13 +365,15 @@ class MainCharacter(pygame.sprite.Sprite):
         if self.att and self.jumping:
             pass  # атака в прыжке (разработаю, когда будет анимация атаки в прыжке)
         elif self.att:  # гг производит атаку и перезаряжает ее
-           # for elem in enemies_sp:
-           #     elem.is_under_attack()  # проверка для каждого игрока находится ли он в поле действия атаки
+            for elem in enemies_sp:
+                elem.is_under_attack()  # проверка для каждого игрока находится ли он в поле действия атаки
             self.att = False
             self.last = pygame.time.get_ticks()
 
     def shoot(self, target):
         Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
+
+
 
 
 class Enemy(pygame.sprite.Sprite):
