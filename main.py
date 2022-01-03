@@ -377,8 +377,6 @@ class MainCharacter(pygame.sprite.Sprite):
         Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
 
 
-
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(enemies)
