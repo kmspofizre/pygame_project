@@ -699,6 +699,8 @@ def score():
         i = 0
         pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
 
+        screen.blit(font.render('Можно нажать левую кнопку мыши', 1, 'red'), (400, 700))
+
         columns_name = ['Date and time', 'Score']
         for i in range(2):
             name = columns_name[i]
