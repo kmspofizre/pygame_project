@@ -6,8 +6,8 @@ import csv
 
 # загрузка настроек игры, уровней и различных классов
 #from game_settings import *
-from sound import Sound
-from cursor import Cursor
+#from sound import Sound
+#from cursor import Cursor
 
 surface_color = "#7ec0ee"
 
@@ -75,6 +75,39 @@ def load_image(name, color_key=None):
     else:
         image = image.convert_alpha()
     return image
+
+
+class Cursor(pygame.sprite.Sprite):
+    # инициализация класса
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = load_image("data\cursor\cursor.gif")
+        self.rect = self.image.get_rect()
+
+
+# класс музыки и звуков
+class Sound(object):
+    # инициализация класса
+    def __init__(self):
+        pygame.mixer.pre_init(44100, -16, 2, 1024)
+        self.sounds = {}
+        self.load_sounds()
+
+    # загрузка списка музыки и звуков из каталога
+    def load_sounds(self):
+        self.sounds['game1'] = pygame.mixer.Sound('audio\\music1.mp3')
+        self.sounds['game2'] = pygame.mixer.Sound('audio\\music2.mp3')
+        self.sounds['game3'] = pygame.mixer.Sound('audio\\music3.mp3')
+        self.sounds['game4'] = pygame.mixer.Sound('audio\\music4.mp3')
+
+    # воспроизведение звуков
+    def play(self, name, loops, volume):
+        self.sounds[name].play(loops=loops)
+        self.sounds[name].set_volume(volume)
+
+    # остановка воспроизведения звуков
+    def stop(self, name):
+        self.sounds[name].stop()
 
 
 # родительский класс tile

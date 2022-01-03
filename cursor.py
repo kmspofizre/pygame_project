@@ -18,9 +18,4 @@ def load_image(name, colorkey=None):
     return image
 
 # класс курсора
-class Cursor(pygame.sprite.Sprite):
-    # инициализация класса
-    def __init__(self, group):
-        super().__init__(group)
-        self.image = load_image("cursor.gif")
-        self.rect = self.image.get_rect()
+
