@@ -690,6 +690,7 @@ if __name__ == '__main__':
     pygame.init()
 
     screen = pygame.display.set_mode((screen_width, screen_height))
+    pygame.display.set_caption('Приключение ЛюКэнга')
 
     SHOOTING_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(SHOOTING_EVENT, 3000)
