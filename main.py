@@ -31,7 +31,7 @@ screen_width = 1200
 enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
-main_character_gr = pygame.sprite.Group()
+main_character_group = pygame.sprite.Group()
 
 
 # функция импортирования файла описания уровня csv
@@ -230,18 +230,18 @@ class Level:
 
 
 class MainCharacter(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(main_character_gr)
-       # self.sprite = AnimatedSprite(load_image("./data/hero/lukang.gif"), 6, 1, 2, 350)
-     #   main_character_gr.add(self.sprite)
-        self.image = load_image("./data/hero/lukang.gif")
-      #  pygame.draw.rect(self.image, pygame.Color('blue'), (0, 0, 64, 64))
-        #self.rect = AnimatedSprite(load_image("./data/hero/lukang.gif"), 6, 1, 2, 350)
+    def __init__(self, sheet, x, y, rows, columns):
+        super().__init__(main_character_group)
+
+        self.frames = []
+        self.cut_sheet(sheet, columns, rows)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(x, y)
 
         self.items = dict()
         self.hp = 50
 
-        self.rect = pygame.Rect(2, 350, 64, 64)
         self.moving = False
         self.rising = False
         self.jumping = False
@@ -251,7 +251,19 @@ class MainCharacter(pygame.sprite.Sprite):
         self.last = 0
         self.rising_timer = 0
 
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
+                                sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
+
     def update(self, *args):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
+
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
             self.jumping = False
@@ -333,7 +345,7 @@ class Enemy(pygame.sprite.Sprite):
         self.hp = 5
 
     def is_under_attack(self):
-        if pygame.sprite.spritecollideany(self, main_character_gr):  # получение урона от гг (функция attack)
+        if pygame.sprite.spritecollideany(self, main_character_group):  # получение урона от гг (функция attack)
             self.get_damage()
 
     def is_getting_shot(self):
@@ -410,7 +422,7 @@ class Bullet(pygame.sprite.Sprite):
         # с главным героем уменьшает его здоровье и пропадает
 
         self.rect = self.rect.move(self.vx * self.dx, self.vy * self.dy)
-        if pygame.sprite.spritecollideany(self, main_character_gr):
+        if pygame.sprite.spritecollideany(self, main_character_group):
             main_character.get_damage()
             self.kill()
 
@@ -468,7 +480,6 @@ class GroundEnemy(Enemy):
 class Menu:
     def __init__(self, menu_item):
         self.menu_item = menu_item
-
 
     def render(self, screen, font, num_menu_item):
         font = pygame.font.Font('fonts/Asessorc.otf', 30)
@@ -583,7 +594,7 @@ def start_level():
         shurikens.update()
         bullets.update()
         bullets.draw(screen)
-        main_character_gr.draw(screen)
+        main_character_group.draw(screen)
         # enemies.draw(screen)
         clock1.tick(fps)
         # pygame.display.flip()
@@ -594,7 +605,6 @@ if __name__ == '__main__':
     level_change = 0
 
     pygame.init()
-
 
     screen = pygame.display.set_mode((screen_width, screen_height))
 
@@ -628,7 +638,8 @@ if __name__ == '__main__':
         elif level_change == 1:
             level = Level(level_1, screen)
 
-        main_character = MainCharacter()
+        #main_character = MainCharacter()
+        main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
         ar = Archer(100, 250)
         archers = [ar]  # список стрелков
         # we = GroundEnemy(150, 350, 40)
