@@ -3,6 +3,7 @@ import sys
 import math
 import pygame
 import csv
+import sqlite3
 
 # загрузка настроек игры, уровней и различных классов
 #from game_settings import *
@@ -32,6 +33,8 @@ enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
 main_character_group = pygame.sprite.Group()
+
+connection = sqlite3.connect('data\score.db')
 
 
 # функция импортирования файла описания уровня csv
@@ -574,7 +577,7 @@ class Menu:
                     if menu_item == 1:
                         print('rules')
                     if menu_item == 2:
-                        print('best')
+                        score()
                     if menu_item == 3:
                         sys.exit()
 
@@ -636,6 +639,51 @@ def start_level():
         clock1.tick(fps)
         # pygame.display.flip()
         pygame.display.update()
+
+
+def score():
+    screen.fill(surface_color)
+
+    font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    cur = connection.cursor()
+    result = cur.execute("SELECT id, date, score FROM results").fetchall()
+    result = sorted(result, key=lambda x: x[0], reverse=True)
+
+    i = 0
+    pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
+
+    columns_name = ['Date and time', 'Score']
+    for i in range(2):
+        name = columns_name[i]
+        naimenovania = font.render(name, 1, pygame.Color('yellow'))
+        naimenovania_rect = naimenovania.get_rect()
+        naimenovania_rect.x = 500 * i + 128
+        naimenovania_rect.y = 64 + 12
+        screen.blit(naimenovania, naimenovania_rect)
+
+    for i in range(9):
+        pygame.draw.line(screen, pygame.Color('white'), (64, 64 * (i + 1) + 64), (screen_width - 64, 64 * (i + 1) + 64), 5)
+
+        if i < 8:
+            for k in range(2):
+                text_rend = font.render(str(result[i][k + 1]), 1, pygame.Color('yellow'))
+                text_rect = text_rend.get_rect()
+                text_rect.x = 500 * k + 128
+                text_rect.y = (64 * (i + 1) + 76)
+                screen.blit(text_rend, text_rect)
+
+        for k in range(3):
+            pygame.draw.line(screen, pygame.Color('white'), (535 * k + 64, 64 * i + 64), (535 * k + 64, 64 * (i + 1) + 64), 5)
+
+    active_menu = True
+    while active_menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                active_menu = False
+            if event.type == pygame.K_ESCAPE:
+                active_menu = False
+
+        pygame.display.flip()
 
 
 if __name__ == '__main__':
