@@ -6,17 +6,13 @@ import csv
 import sqlite3
 import random
 
-# загрузка настроек игры, уровней и различных классов
-#from game_settings import *
-#from sound import Sound
-#from cursor import Cursor
-
 surface_color = "#7ec0ee"
 
 # путь csv уровней
 level_0 = {'surface': './levels/level0/level0_surface.csv',
            'cup': './levels/level0/level0_cup.csv',
            'bochki': './levels/level0/level0_bochki.csv',
+           'player': './levels/level0/level0_player.csv',
            'enemy': './levels/level0/level0_enemy.csv'}
 level_1 = {'surface': './levels/level1/level1_surface.csv',
            'cup': './levels/level1/level1_cup.csv',
@@ -231,9 +227,14 @@ class Fon():
 
 # класс уровня
 class Level:
-    def __init__(self, level_data, surface):
+    def __init__(self, level_data, surface, main_charaster):
         self.display_surface = surface
         self.screen_shift = 0
+
+        player_layout = import_csv(level_data['player'])
+        self.player = pygame.sprite.GroupSingle()
+        self.finish = pygame.sprite.GroupSingle()
+        self.player_setup(player_layout, main_charaster)
 
         self.fon = Fon()
 
@@ -248,6 +249,19 @@ class Level:
 
         enemy_layout = import_csv(level_data['enemy'])
         self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
+
+    # функция создания игрока из класса MainСharaster и точки выхода из уровня
+    def player_setup(self, layout, main_charaster):
+        for r_index, row in enumerate(layout):
+            for c_index, znach in enumerate(row):
+                x = c_index * tile_size
+                y = r_index * tile_size
+                if znach == '0':
+                    self.player.add(main_charaster)
+                if znach == '1':
+                    finish_surface = load_image('./data/startfinish/finish.png', -1)
+                    sprite = SurfaceTile(tile_size, x, y, finish_surface)
+                    self.finish.add(sprite)
 
     # функция создания уровня из tile
     def create_tile_group(self, lay, type):
@@ -284,20 +298,33 @@ class Level:
                             continue
 
                     sprite_group.add(sprite)
-
         return sprite_group
 
     # функция сдвига tile-ов в зависимости от движения игрока (камера)
-    def sdvig_x(self, direction_x):
-        if direction_x < 0:
+    def sdvig_x(self):
+        player = self.player.sprite
+        player_x = player.rect.centerx
+        direction_x = player.direction.x
+
+        #if direction_x < 0:
+        if player_x < screen_width / 2 and direction_x < 0:
             self.screen_shift = 5
-        elif direction_x > 0:
+        #elif direction_x > 0:
+        elif player_x > screen_width - (screen_width / 2) and direction_x > 0:
             self.screen_shift = -5
         else:
             self.screen_shift = 0
 
+            # def sdvig_x(self, direction_x):
+   #     if direction_x < 0:
+   #         self.screen_shift = 5
+    #    elif direction_x > 0:
+    #        self.screen_shift = -5
+    #    else:
+    #        self.screen_shift = 0
+
     # функция обновления tile уровня на экране
-    def create(self):
+    def update(self):
         self.fon.draw(self.display_surface)
 
         self.surface_sprites.update(self.screen_shift)
@@ -312,9 +339,16 @@ class Level:
         self.enemy_sprites.update(self.screen_shift)
         self.enemy_sprites.draw(self.display_surface)
 
+        self.player.update()
+        self.sdvig_x()
+        self.player.draw(self.display_surface)
+        self.finish.update(self.screen_shift)
+        self.finish.draw(self.display_surface)
+
 
 class MainCharacter(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, rows, columns):
+        #super().__init__()
         super().__init__(main_character_group)
 
         self.frames = []
@@ -322,6 +356,9 @@ class MainCharacter(pygame.sprite.Sprite):
         self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(x, y)
+
+        self.face = True
+        self.direction = pygame.math.Vector2(0, 0)
 
         self.items = dict()
         self.hp = 50
@@ -335,6 +372,7 @@ class MainCharacter(pygame.sprite.Sprite):
         self.last = 0
         self.rising_timer = 0
 
+    # подготовка картинок героя
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                                 sheet.get_height() // rows)
@@ -344,9 +382,28 @@ class MainCharacter(pygame.sprite.Sprite):
                 self.frames.append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
+    # мой обработчик клавиш
+  #  def get_input(self):
+#       keys = pygame.key.get_pressed()
+
+ #       if keys[pygame.K_RIGHT]:
+ #           self.direction.x = 5
+ #           self.face = True
+#        elif keys[pygame.K_LEFT]:
+ #           self.direction.x = -5
+ #           self.face = False
+ #       else:
+  #          self.direction.x = 0
+
     def update(self, *args):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
+
+        # мой обработчик клавиш
+      #  self.get_input()
+
+        # движение игрока когда не двигается камера
+        self.rect.x += self.direction.x
 
         if pygame.sprite.spritecollideany(self, level.surface_sprites):  # если находится на земле, то может прыгать
             self.moving = True                               # self.moving - флаг нахождения на платформе
@@ -367,15 +424,14 @@ class MainCharacter(pygame.sprite.Sprite):
             pass
         elif self.left:
             self.rect = self.rect.move(-1, 0)
-            # камера
-            level.sdvig_x(-1)
+            self.direction.x = -5
+            self.face = False
         elif self.right:
             self.rect = self.rect.move(1, 0)
-            # камера
-            level.sdvig_x(1)
-        # камера
+            self.direction.x = 5
+            self.face = True
         else:
-            level.sdvig_x(0)
+            self.direction.x = 0
 
         if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
             now = pygame.time.get_ticks()  # атака перезаряжается
@@ -467,7 +523,7 @@ class Archer(Enemy):
             self.rect = self.rect.move(0, 1)
 
     def shoot(self):
-
+        pass
         # выстрел, при инициализации класса передаются координаты стрелка
 
         Bullet(self.rect.x, self.rect.y, main_character.rect.x, main_character.rect.y, bullets)
@@ -640,8 +696,8 @@ def start_level():
 
     running = True
     while running:
+
         for event in pygame.event.get():
-            keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
                 running = False
                 sound.stop('game4')
@@ -660,27 +716,19 @@ def start_level():
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
 
-            # обработчик камеры
-         #   if keys[pygame.K_RIGHT]:
-          #      level.sdvig_x(1)
-          #  elif keys[pygame.K_LEFT]:
-          #      level.sdvig_x(-1)
-          #  else:
-          #      level.sdvig_x(0)
-
         # вызов метода обновления экрана
-        level.create()
+        level.update()
 
         # обработчик курсора
         if pygame.mouse.get_focused():
             cursor.draw(screen)
 
-        main_character.update()
+        # main_character.update()
         # enemies.update(0)
         shurikens.update()
         bullets.update()
         bullets.draw(screen)
-        main_character_group.draw(screen)
+        # main_character_group.draw(screen)
         # enemies.draw(screen)
         clock1.tick(fps)
         # pygame.display.flip()
@@ -764,22 +812,21 @@ if __name__ == '__main__':
                   (550, 420, u'Quit', 'yellow', 'black', 3)]
     game = Menu(menu_items)
 
+    # создание персонажей
+    main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
+    ar = Archer(100, 250)
+    archers = [ar]  # список стрелков
+    #we = GroundEnemy(150, 350, 40)
+    # enemies_sp = [we, ar]  # список врагов
 
     running = True
     while running:
         game.menu()
         # инициализация уровня
         if level_change == 0:
-            level = Level(level_0, screen)
+            level = Level(level_0, screen, main_character)
         elif level_change == 1:
-            level = Level(level_1, screen)
-
-        #main_character = MainCharacter()
-        main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
-        ar = Archer(100, 250)
-        archers = [ar]  # список стрелков
-        # we = GroundEnemy(150, 350, 40)
-        # enemies_sp = [we, ar]  # список врагов
+            level = Level(level_1, screen, main_character)
 
         start_level()
         level_change = 1
