@@ -4,7 +4,6 @@ import math
 import pygame
 import csv
 import sqlite3
-import random
 
 # загрузка настроек игры, уровней и различных классов
 #from game_settings import *
@@ -29,20 +28,14 @@ tile_size = 64
 
 screen_height = tile_number_vertic * tile_size
 screen_width = 1200
+screen = pygame.display.set_mode((screen_width, screen_height))
 
-all_sprites = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
 main_character_group = pygame.sprite.Group()
 
 connection = sqlite3.connect('data\score.db')
-
-gravity = 0.25
-
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Приключение ЛюКэнга')
-screen_rect = (0, 0, screen_width, screen_height)
 
 
 # функция импортирования файла описания уровня csv
@@ -86,46 +79,6 @@ def load_image(name, color_key=None):
     else:
         image = image.convert_alpha()
     return image
-
-
-def create_particles(position):
-    # количество создаваемых частиц
-    particle_count = 20
-    # возможные скорости
-    numbers = range(-5, 6)
-    for _ in range(particle_count):
-        Particle(position, random.choice(numbers), random.choice(numbers))
-
-
-class Particle(pygame.sprite.Sprite):
-    # сгенерируем частицы разного размера
-    fire = [load_image("./data/star/star.png", -1)]
-    for scale in (5, 10, 20):
-        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
-
-    def __init__(self, pos, dx, dy):
-        super().__init__(all_sprites)
-        self.image = random.choice(self.fire)
-        self.rect = self.image.get_rect()
-
-        # у каждой частицы своя скорость - это вектор
-        self.velocity = [dx, dy]
-        # и свои координаты
-        self.rect.x, self.rect.y = pos
-
-        # гравитация будет одинаковой
-        self.gravity = gravity
-
-    def update(self):
-        # применяем гравитационный эффект:
-        # движение с ускорением под действием гравитации
-        self.velocity[1] += self.gravity
-        # перемещаем частицу
-        self.rect.x += self.velocity[0]
-        self.rect.y += self.velocity[1]
-        # убиваем, если частица ушла за экран
-        if not self.rect.colliderect(screen_rect):
-            self.kill()
 
 
 class Cursor(pygame.sprite.Sprite):
@@ -260,26 +213,20 @@ class Level:
                     y = r_index * tile_size
 
                     if type == 'surface':
-                        surface_tile_list = import_cut_png('./data/surface/surface.png')
-                        tile_surface = surface_tile_list[int(znach)]
-                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
+                        sprite = Surface(znach, x, y).return_sprite()
 
                     if type == 'bochki':
-                        surface_tile_list = import_cut_png('./data/bochki/bochka1.png')
-                        tile_surface = surface_tile_list[int(znach)]
-                        sprite = SurfaceTile(tile_size, x, y, tile_surface)
+                        sprite = Barrels(znach, x, y).return_sprite()
 
                     if type == 'cup':
-                        sprite = AnimatedSprite(load_image("./data/cup/coin.gif"), 10, 1, x, y)
+                        sprite = Coin(10, 1, x, y)
                         #surface_tile_list = import_cut_png('./data/cup/chirik.png')
                         #tile_surface = surface_tile_list[int(znach)]
                         #sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
                     if type == 'enemy':
                         if znach == '0':
-                            surface_tile_list = import_cut_png('./data/enemy/enemy.gif')
-                            tile_surface = surface_tile_list[0]
-                            sprite = GroundEnemy(x, y, 40, tile_surface)
+                            sprite = GroundEnemy(x, y, 40)
                         if znach == '1':
                             continue
 
@@ -311,6 +258,37 @@ class Level:
 
         self.enemy_sprites.update(self.screen_shift)
         self.enemy_sprites.draw(self.display_surface)
+
+
+class Surface:
+    tile_list = import_cut_png("./data/surface/surface.png")
+
+    def __init__(self, val, x, y):
+        self.tile_surface = Surface.tile_list[int(val)]
+        self.sprite = SurfaceTile(tile_size, x, y, self.tile_surface)
+
+    def return_sprite(self):
+        return self.sprite
+
+
+class Barrels:
+    tile_list = import_cut_png("./data/bochki/bochka1.png")
+
+    def __init__(self, val, x, y):
+        self.tile_surface = Surface.tile_list[int(val)]
+        self.sprite = SurfaceTile(tile_size, x, y, self.tile_surface)
+
+    def return_sprite(self):
+        return self.sprite
+
+
+class Coin(AnimatedSprite):
+    sprite_sheet = load_image("./data/cup/coin.gif")
+
+    def __init__(self, columns, rows, x, y):
+        super().__init__(Coin.sprite_sheet, columns, rows, x, y)
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(x, y)
 
 
 class MainCharacter(pygame.sprite.Sprite):
@@ -425,9 +403,12 @@ class MainCharacter(pygame.sprite.Sprite):
         Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
 
 
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(enemies)
+class Enemy(AnimatedSprite):
+
+    def __init__(self, sprite_sheet, columns, rows, x, y):
+        super().__init__(sprite_sheet, columns, rows, x, y)
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(x, y)
         self.hp = 5
 
     def is_under_attack(self):
@@ -448,9 +429,11 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Archer(Enemy):
+    sprite_sheet = load_image("./data/enemy/enemy.gif")
+
     def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
+        super().__init__(Archer.sprite_sheet, 1, 1, x, y)
+        self.image = self.frames[self.cur_frame]
         pygame.draw.rect(self.image, pygame.Color('green'), (0, 0, 20, 20))
         self.rect = pygame.Rect(x, y, 20, 20)
         self.moving = False
@@ -532,11 +515,11 @@ class Shuriken(Bullet):
 
 
 class GroundEnemy(Enemy):
-    def __init__(self, x, y, walking_range, surface):
-        super().__init__()
-        self.image = surface
-        #self.image = pygame.Surface((64, 64), pygame.SRCALPHA, 32)
-        #pygame.draw.rect(self.image, pygame.Color('pink'), (0, 0, 64, 64))
+    sprite_sheet = load_image("./data/enemy/enemy.gif")
+
+    def __init__(self, x, y, walking_range):
+        super().__init__(GroundEnemy.sprite_sheet, 1, 1, x, y)
+        self.image = self.frames[self.cur_frame]
         self.start_x = x
         self.rect = pygame.Rect(x, y, 64, 64)
         self.walking_range = walking_range
@@ -688,61 +671,55 @@ def start_level():
 
 
 def score():
+    screen.fill(surface_color)
+
     font = pygame.font.Font('fonts/Asessorc.otf', 30)
     cur = connection.cursor()
     result = cur.execute("SELECT id, date, score FROM results").fetchall()
     result = sorted(result, key=lambda x: x[0], reverse=True)
 
+    i = 0
+    pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
+
+    columns_name = ['Date and time', 'Score']
+    for i in range(2):
+        name = columns_name[i]
+        naimenovania = font.render(name, 1, pygame.Color('yellow'))
+        naimenovania_rect = naimenovania.get_rect()
+        naimenovania_rect.x = 500 * i + 128
+        naimenovania_rect.y = 64 + 12
+        screen.blit(naimenovania, naimenovania_rect)
+
+    for i in range(9):
+        pygame.draw.line(screen, pygame.Color('white'), (64, 64 * (i + 1) + 64), (screen_width - 64, 64 * (i + 1) + 64), 5)
+
+        if i < 8:
+            for k in range(2):
+                text_rend = font.render(str(result[i][k + 1]), 1, pygame.Color('yellow'))
+                text_rect = text_rend.get_rect()
+                text_rect.x = 500 * k + 128
+                text_rect.y = (64 * (i + 1) + 76)
+                screen.blit(text_rend, text_rect)
+
+        for k in range(3):
+            pygame.draw.line(screen, pygame.Color('white'), (535 * k + 64, 64 * i + 64), (535 * k + 64, 64 * (i + 1) + 64), 5)
+
     active_menu = True
     while active_menu:
-        screen.fill(surface_color)
-        i = 0
-        pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
-
-        screen.blit(font.render('Можно нажать левую кнопку мыши', 1, 'red'), (400, 700))
-
-        columns_name = ['Date and time', 'Score']
-        for i in range(2):
-            name = columns_name[i]
-            naimenovania = font.render(name, 1, pygame.Color('yellow'))
-            naimenovania_rect = naimenovania.get_rect()
-            naimenovania_rect.x = 500 * i + 128
-            naimenovania_rect.y = 64 + 12
-            screen.blit(naimenovania, naimenovania_rect)
-
-        for i in range(9):
-            pygame.draw.line(screen, pygame.Color('white'), (64, 64 * (i + 1) + 64),
-                             (screen_width - 64, 64 * (i + 1) + 64), 5)
-
-            if i < 8:
-                for k in range(2):
-                    text_rend = font.render(str(result[i][k + 1]), 1, pygame.Color('yellow'))
-                    text_rect = text_rend.get_rect()
-                    text_rect.x = 500 * k + 128
-                    text_rect.y = (64 * (i + 1) + 76)
-                    screen.blit(text_rend, text_rect)
-
-            for k in range(3):
-                pygame.draw.line(screen, pygame.Color('white'), (535 * k + 64, 64 * i + 64),
-                                 (535 * k + 64, 64 * (i + 1) + 64), 5)
-
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
+            if event.type == pygame.QUIT:
                 active_menu = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # создаем частицы по щелчку мыши
-                create_particles(pygame.mouse.get_pos())
+            if event.type == pygame.K_ESCAPE:
+                active_menu = False
 
-        all_sprites.draw(screen)
-        all_sprites.update()
         pygame.display.flip()
-        clock1.tick(fps)
 
 
 if __name__ == '__main__':
     level_change = 0
 
     pygame.init()
+
 
     SHOOTING_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(SHOOTING_EVENT, 3000)
@@ -752,7 +729,8 @@ if __name__ == '__main__':
     # инициализация звука и музыки
     sound = Sound()
 
-    # инициализация курсора pygame.display.set_caption('Приключение Лю Кэнга')
+    pygame.display.set_caption('Приключение Лю Кэнга')
+    # инициализация курсора
     pygame.mouse.set_visible(False)
     cursor = pygame.sprite.Group()
     cur = Cursor(cursor)
