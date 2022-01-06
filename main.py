@@ -1,14 +1,15 @@
 import os
 import sys
 import math
+
 import pygame
 import csv
 import sqlite3
 
 # загрузка настроек игры, уровней и различных классов
-#from game_settings import *
-#from sound import Sound
-#from cursor import Cursor
+# from game_settings import *
+# from sound import Sound
+# from cursor import Cursor
 
 surface_color = "#7ec0ee"
 
@@ -103,6 +104,7 @@ class Sound(object):
         self.sounds['game2'] = pygame.mixer.Sound('audio\\music2.mp3')
         self.sounds['game3'] = pygame.mixer.Sound('audio\\music3.mp3')
         self.sounds['game4'] = pygame.mixer.Sound('audio\\music4.mp3')
+        self.sounds['game_over'] = pygame.mixer.Sound('audio\\game_over.mp3')
 
     # воспроизведение звуков
     def play(self, name, loops, volume):
@@ -134,8 +136,8 @@ class SurfaceTile(Tile):
 
 # анимированый tile
 class AnimatedSprite(pygame.sprite.Sprite):
-    def __init__(self, sheet, columns, rows, x, y):
-        super().__init__(pygame.sprite.Group())
+    def __init__(self, sheet, columns, rows, x, y, sprite_group=pygame.sprite.Group()):
+        super().__init__(sprite_group)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
@@ -156,29 +158,30 @@ class AnimatedSprite(pygame.sprite.Sprite):
 
 
 # класс фона
-class Fon():
+class Fon:
     def __init__(self):
-       # self.first_level = pygame.image.load('./data/fon/.png').convert()
+        # self.first_level = pygame.image.load('./data/fon/.png').convert()
         self.second_level = pygame.image.load('./data/fon/second_level_fon.png').convert()
-       # self.third_level = pygame.image.load('./data/fon/.png').convert()
-       # self.four_level = pygame.image.load('./data/fon/.png').convert()
+        # self.third_level = pygame.image.load('./data/fon/.png').convert()
+        # self.four_level = pygame.image.load('./data/fon/.png').convert()
 
-     #   self.first_level = pygame.transform.scale(self.first_level, (screen_width, screen_height))
+        #   self.first_level = pygame.transform.scale(self.first_level, (screen_width, screen_height))
         self.second_level = pygame.transform.scale(self.second_level, (screen_width, screen_height))
-     #   self.third_level = pygame.transform.scale(self.third_level, (screen_width, screen_height))
-     #   self.four_level = pygame.transform.scale(self.four_level, (screen_width, screen_height))
+
+    #   self.third_level = pygame.transform.scale(self.third_level, (screen_width, screen_height))
+    #   self.four_level = pygame.transform.scale(self.four_level, (screen_width, screen_height))
 
     def draw(self, surface):
-        #for stroki in range(tile_number_vertic):
-         #   rasmer_tile = stroki * tile_size
-         #   if row < 3:
-         #       surface.blit(self.first_level, (0, rasmer_tile))
-         #   elif row >= 3 and row <= 6:
-         #       surface.blit(self.second_level, (0, rasmer_tile))
-         #   elif row > 6:
-         #       surface.blit(self.third_level, (0, rasmer_tile))
-         #   else:
-         #       surface.blit(self.four_level, (0, rasmer_tile))
+        # for stroki in range(tile_number_vertic):
+        #   rasmer_tile = stroki * tile_size
+        #   if row < 3:
+        #       surface.blit(self.first_level, (0, rasmer_tile))
+        #   elif row >= 3 and row <= 6:
+        #       surface.blit(self.second_level, (0, rasmer_tile))
+        #   elif row > 6:
+        #       surface.blit(self.third_level, (0, rasmer_tile))
+        #   else:
+        #       surface.blit(self.four_level, (0, rasmer_tile))
         surface.blit(self.second_level, (0, 0))
 
 
@@ -220,9 +223,9 @@ class Level:
 
                     if type == 'cup':
                         sprite = Coin(10, 1, x, y)
-                        #surface_tile_list = import_cut_png('./data/cup/chirik.png')
-                        #tile_surface = surface_tile_list[int(znach)]
-                        #sprite = SurfaceTile(tile_size, x, y, tile_surface)
+                        # surface_tile_list = import_cut_png('./data/cup/chirik.png')
+                        # tile_surface = surface_tile_list[int(znach)]
+                        # sprite = SurfaceTile(tile_size, x, y, tile_surface)
 
                     if type == 'enemy':
                         if znach == '0':
@@ -275,7 +278,7 @@ class Barrels:
     tile_list = import_cut_png("./data/bochki/bochka1.png")
 
     def __init__(self, val, x, y):
-        self.tile_surface = Surface.tile_list[int(val)]
+        self.tile_surface = Barrels.tile_list[int(val)]
         self.sprite = SurfaceTile(tile_size, x, y, self.tile_surface)
 
     def return_sprite(self):
@@ -288,21 +291,21 @@ class Coin(AnimatedSprite):
     def __init__(self, columns, rows, x, y):
         super().__init__(Coin.sprite_sheet, columns, rows, x, y)
         self.image = self.frames[self.cur_frame]
-        self.rect = self.rect.move(x, y)
 
 
-class MainCharacter(pygame.sprite.Sprite):
-    def __init__(self, sheet, x, y, rows, columns):
-        super().__init__(main_character_group)
+class MainCharacter(AnimatedSprite):
 
-        self.frames = []
-        self.cut_sheet(sheet, columns, rows)
-        self.cur_frame = 0
+    def __init__(self, sheet, columns, rows, x, y):
+        self.sheet = sheet
+        self.columns = columns
+        self.rows = rows
+        data = (self.sheet, self.columns, self.rows, x, y, main_character_group)
+        super().__init__(*data)
+
         self.image = self.frames[self.cur_frame]
-        self.rect = self.rect.move(x, y)
 
         self.items = dict()
-        self.hp = 50
+        self.hp = 5
 
         self.moving = False
         self.rising = False
@@ -312,33 +315,27 @@ class MainCharacter(pygame.sprite.Sprite):
         self.att = True
         self.last = 0
         self.rising_timer = 0
-
-    def cut_sheet(self, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
-                                sheet.get_height() // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size)))
+        self.iteration_counter = 0
 
     def update(self, *args):
-        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-        self.image = self.frames[self.cur_frame]
+        self.iteration_counter += 1
+        if self.iteration_counter % 3 == 0:
+            self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+            self.image = self.frames[self.cur_frame]
 
         if pygame.sprite.spritecollideany(self, level.surface_sprites):  # если находится на земле, то может прыгать
-            self.moving = True                               # self.moving - флаг нахождения на платформе
+            self.moving = True  # self.moving - флаг нахождения на платформе
             self.jumping = False
             self.rising = False
         else:
             self.moving = False
-        if not self.moving:                                  # если не на земле
-            if not self.rising:                              # если не взлетает
-                self.rect = self.rect.move(0, 3)             # падает
+        if not self.moving:  # если не на земле
+            if not self.rising:  # если не взлетает
+                self.rect = self.rect.move(0, 3)  # падает
                 self.moving = False
             else:
-                self.rect = self.rect.move(0, -5)            # взлетает до тех пор, пока self.rising_timer не ноль
-                self.rising_timer -= 5                       # rising_timer задается в функции jump
+                self.rect = self.rect.move(0, -5)  # взлетает до тех пор, пока self.rising_timer не ноль
+                self.rising_timer -= 5  # rising_timer задается в функции jump
                 if self.rising_timer == 0:
                     self.rising = False
         if self.left and self.right:
@@ -527,7 +524,7 @@ class GroundEnemy(Enemy):
         self.direction = 1
 
     def update(self, shift):
-        #if pygame.sprite.spritecollideany(self, platforms):
+        # if pygame.sprite.spritecollideany(self, platforms):
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
             self.walking()
@@ -557,12 +554,11 @@ class Menu:
         font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
         for i in self.menu_item:
             if num_menu_item == i[5]:
-                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1] - 70))
+                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1]))
             else:
-                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1] - 70))
+                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1]))
 
     def menu(self):
-        pygame.mouse.set_visible(True)
         sound.play('game2', 10, 0.3)
         active_menu = True
         pygame.key.set_repeat(0, 0)
@@ -572,11 +568,9 @@ class Menu:
             screen.fill((0, 100, 200))
             mouse_coords = pygame.mouse.get_pos()
 
-            if pygame.mouse.get_focused():
-                cursor.draw(screen)
-
             for i in self.menu_item:
-                if mouse_coords[0] > i[0] and mouse_coords[0] < i[0] + 155 and mouse_coords[1] > i[1] and mouse_coords[1] < i[1] + 50:
+                if i[0] < mouse_coords[0] < i[0] + 155 \
+                        and i[1] < mouse_coords[1] < i[1] + 50:
                     menu_item = i[5]
 
             self.render(screen, font_menu, menu_item)
@@ -599,6 +593,8 @@ class Menu:
                     if event.key == pygame.K_DOWN:
                         if menu_item < len(self.menu_item) - 1:
                             menu_item += 1
+                if event.type == pygame.MOUSEMOTION:
+                    cur.rect = event.pos
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if menu_item == 0:
                         sound.stop('game2')
@@ -610,10 +606,85 @@ class Menu:
                     if menu_item == 3:
                         sys.exit()
 
+            if pygame.mouse.get_focused():
+                cursor.draw(screen)
+
+            pygame.display.update()
+
+
+class EndMenu:
+    def __init__(self, menu_items):
+        self.menu_items = menu_items
+
+    def render(self, screen, font, num_menu_item):
+        font = pygame.font.SysFont("Times new Roman", 120)
+        screen.blit(font.render("YOU DIED", 1, "red"), (312, 220))
+
+        font = pygame.font.SysFont("Times New Roman", 30)
+
+        for i in self.menu_items:
+            if num_menu_item == i[5]:
+                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1]))
+            else:
+                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1]))
+
+    def menu(self):
+        active_menu = True
+        pygame.key.set_repeat(0, 0)
+        font_menu = pygame.font.SysFont('Times New Roman', 50)
+        menu_item = 0
+        while active_menu:
+            sound.stop("game4")
+            screen.fill((0, 0, 0))
+            mouse_coords = pygame.mouse.get_pos()
+
+            if pygame.mouse.get_focused():
+                cursor.draw(screen)
+
+            for i in self.menu_items:
+                if i[0] < mouse_coords[0] < i[0] + 150 \
+                        and i[1] < mouse_coords[1] < i[1] + 50:
+                    menu_item = i[5]
+
+            self.render(screen, font_menu, menu_item)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        if menu_item == 0:
+                            active_menu = False
+                            game.menu()
+                        if menu_item == 1:
+                            sys.exit()
+                    if event.key == pygame.K_ESCAPE:
+                        sys.exit()
+                    if event.key == pygame.K_UP:
+                        if menu_item > 0:
+                            menu_item -= 1
+                    if event.key == pygame.K_DOWN:
+                        if menu_item < len(self.menu_items) - 1:
+                            menu_item += 1
+                if event.type == pygame.MOUSEMOTION:
+                    cur.rect = event.pos
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if menu_item == 0:
+                        active_menu = False
+                        game.menu()
+                    if menu_item == 1:
+                        sys.exit()
+
+            if pygame.mouse.get_focused():
+                cursor.draw(screen)
+
             pygame.display.update()
 
 
 def game_over():
+    sound.play("game_over", 1, 0.1)
+    main_character.hp = 1
+    end_menu.menu()
     global running
     running = False
 
@@ -628,8 +699,8 @@ def start_level():
             if event.type == pygame.QUIT:
                 running = False
                 sound.stop('game4')
-               # pygame.quit()
-               # sys.exit()
+            # pygame.quit()
+            # sys.exit()
             if event.type == SHOOTING_EVENT:
                 for j in range(len(archers)):
                     archers[j].shoot()
@@ -643,13 +714,13 @@ def start_level():
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
 
-            # обработчик камеры
-         #   if keys[pygame.K_RIGHT]:
-          #      level.sdvig_x(1)
-          #  elif keys[pygame.K_LEFT]:
-          #      level.sdvig_x(-1)
-          #  else:
-          #      level.sdvig_x(0)
+        # обработчик камеры
+        #   if keys[pygame.K_RIGHT]:
+        #      level.sdvig_x(1)
+        #  elif keys[pygame.K_LEFT]:
+        #      level.sdvig_x(-1)
+        #  else:
+        #      level.sdvig_x(0)
 
         # вызов метода обновления экрана
         level.create()
@@ -691,7 +762,8 @@ def score():
         screen.blit(naimenovania, naimenovania_rect)
 
     for i in range(9):
-        pygame.draw.line(screen, pygame.Color('white'), (64, 64 * (i + 1) + 64), (screen_width - 64, 64 * (i + 1) + 64), 5)
+        pygame.draw.line(screen, pygame.Color('white'), (64, 64 * (i + 1) + 64), (screen_width - 64, 64 * (i + 1) + 64),
+                         5)
 
         if i < 8:
             for k in range(2):
@@ -702,7 +774,8 @@ def score():
                 screen.blit(text_rend, text_rect)
 
         for k in range(3):
-            pygame.draw.line(screen, pygame.Color('white'), (535 * k + 64, 64 * i + 64), (535 * k + 64, 64 * (i + 1) + 64), 5)
+            pygame.draw.line(screen, pygame.Color('white'), (535 * k + 64, 64 * i + 64),
+                             (535 * k + 64, 64 * (i + 1) + 64), 5)
 
     active_menu = True
     while active_menu:
@@ -720,7 +793,6 @@ if __name__ == '__main__':
 
     pygame.init()
 
-
     SHOOTING_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(SHOOTING_EVENT, 3000)
     clock1 = pygame.time.Clock()
@@ -735,13 +807,15 @@ if __name__ == '__main__':
     cursor = pygame.sprite.Group()
     cur = Cursor(cursor)
 
-    #создание меню
-    menu_items = [(520, 210, u'Game', 'yellow', 'red', 0),
-                  (530, 280, u'Rules', 'yellow', 'green', 1),
-                  (540, 350, u'Best', 'yellow', 'brown', 2),
-                  (550, 420, u'Quit', 'yellow', 'black', 3)]
+    # создание меню
+    menu_items = [(510, 210, u'Game', 'yellow', 'red', 0),
+                  (520, 280, u'Rules', 'yellow', 'green', 1),
+                  (530, 350, u'Best', 'yellow', 'brown', 2),
+                  (530, 420, u'Quit', 'yellow', 'black', 3)]
+    end_menu_items = [(515, 500, u'Back to Menu', 'white', 'red', 0),
+                      (575, 550, u'Exit', 'white', 'red', 1)]
+    end_menu = EndMenu(end_menu_items)
     game = Menu(menu_items)
-
 
     running = True
     while running:
@@ -752,8 +826,8 @@ if __name__ == '__main__':
         elif level_change == 1:
             level = Level(level_1, screen)
 
-        #main_character = MainCharacter()
-        main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
+        # main_character = MainCharacter()
+        main_character = MainCharacter(load_image("./data/hero/lukang/idle_5_1.png", -1), 5, 1, 2, 400)
         ar = Archer(100, 250)
         archers = [ar]  # список стрелков
         # we = GroundEnemy(150, 350, 40)
