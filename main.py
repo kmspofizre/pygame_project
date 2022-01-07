@@ -382,7 +382,15 @@ class MainCharacter(pygame.sprite.Sprite):
                 self.frames.append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
-    # мой обработчик клавиш
+    # поворот героя
+    def face_transform(self):
+        if self.face:
+            self.image = self.image
+        else:
+            flipped_image = pygame.transform.flip(self.image, True, False)
+            self.image = flipped_image
+
+            # мой обработчик клавиш
   #  def get_input(self):
 #       keys = pygame.key.get_pressed()
 
@@ -398,6 +406,9 @@ class MainCharacter(pygame.sprite.Sprite):
     def update(self, *args):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
+
+        #поворот героя
+        self.face_transform()
 
         # мой обработчик клавиш
       #  self.get_input()
@@ -816,8 +827,12 @@ if __name__ == '__main__':
     main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
     ar = Archer(100, 250)
     archers = [ar]  # список стрелков
-    #we = GroundEnemy(150, 350, 40)
-    # enemies_sp = [we, ar]  # список врагов
+
+    surface_tile_list = import_cut_png('./data/enemy/enemy.gif')
+    tile_surface = surface_tile_list[0]
+
+    we = GroundEnemy(150, 350, 40, tile_surface)
+    enemies_sp = [we, ar]  # список врагов
 
     running = True
     while running:
