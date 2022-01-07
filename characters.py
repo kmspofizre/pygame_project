@@ -55,8 +55,8 @@ class MainCharacter(pygame.sprite.Sprite):
         if not self.moving:                                  # если не на земле
             if not self.rising:                              # если не взлетает
                 self.rect = self.rect.move(0, 3)             # падает
-                self.moving = False
-            else:
+                self.moving = False                          # анимация падения (или продолжение анимации прыжка)
+            else:   # анимация взлета (ну или просто прыжка, если взлета нет)
                 self.rect = self.rect.move(0, -5)            # взлетает до тех пор, пока self.rising_timer не ноль
                 self.rising_timer -= 5                       # rising_timer задается в функции jump
                 if self.rising_timer == 0:
@@ -64,9 +64,9 @@ class MainCharacter(pygame.sprite.Sprite):
         if self.left and self.right:
             pass
         elif self.left:
-            self.rect = self.rect.move(-3, 0)
+            self.rect = self.rect.move(-3, 0)   # анимация движения влево
         elif self.right:
-            self.rect = self.rect.move(3, 0)
+            self.rect = self.rect.move(3, 0)  # анимация движения вправо
         if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
             now = pygame.time.get_ticks()  # атака перезаряжается
             if now - self.last >= 3000:
