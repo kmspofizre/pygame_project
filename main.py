@@ -5,6 +5,7 @@ import pygame
 import csv
 import sqlite3
 import random
+import characters
 
 surface_color = "#7ec0ee"
 
@@ -27,17 +28,17 @@ screen_height = tile_number_vertic * tile_size
 screen_width = 1200
 
 all_sprites = pygame.sprite.Group()
-enemies = pygame.sprite.Group()
-bullets = pygame.sprite.Group()
-shurikens = pygame.sprite.Group()
-main_character_group = pygame.sprite.Group()
+bullets = characters.bullets
+shurikens = characters.shurikens
+enemies = characters.enemies
+main_character_gr = characters.main_character_gr
 
 connection = sqlite3.connect('data\score.db')
 
 gravity = 0.25
 
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Приключение ЛюКэнга')
+pygame.display.set_caption('Приключение Лю Кэнга')
 screen_rect = (0, 0, screen_width, screen_height)
 
 
@@ -349,7 +350,7 @@ class Level:
 class MainCharacter(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, rows, columns):
         #super().__init__()
-        super().__init__(main_character_group)
+        super().__init__(main_character_gr)
 
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
@@ -487,7 +488,7 @@ class Enemy(pygame.sprite.Sprite):
         self.hp = 5
 
     def is_under_attack(self):
-        if pygame.sprite.spritecollideany(self, main_character_group):  # получение урона от гг (функция attack)
+        if pygame.sprite.spritecollideany(self, main_character_gr):  # получение урона от гг (функция attack)
             self.get_damage()
 
     def is_getting_shot(self):
@@ -564,7 +565,7 @@ class Bullet(pygame.sprite.Sprite):
         # с главным героем уменьшает его здоровье и пропадает
 
         self.rect = self.rect.move(self.vx * self.dx, self.vy * self.dy)
-        if pygame.sprite.spritecollideany(self, main_character_group):
+        if pygame.sprite.spritecollideany(self, main_character_gr):
             main_character.get_damage()
             self.kill()
 
@@ -814,10 +815,10 @@ if __name__ == '__main__':
 
     # создание персонажей
     main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
-    ar = Archer(100, 250)
-    archers = [ar]  # список стрелков
-    #we = GroundEnemy(150, 350, 40)
-    # enemies_sp = [we, ar]  # список врагов
+    ar = characters.ar
+    archers = characters.archers
+    we = characters.we
+    enemies_sp = characters.enemies_sp
 
     running = True
     while running:
