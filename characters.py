@@ -46,15 +46,16 @@ class MainCharacter(pygame.sprite.Sprite):
         self.rising_timer = 0
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, platforms):  # если находится на земле, то может прыгать
-            self.moving = True                               # self.moving - флаг нахождения на платформе
-            self.jumping = False
+        if pygame.sprite.spritecollideany(self, platforms) and self.check_ground():
+            self.rising_timer = 0
+            self.moving = True                               # если находится на земле, то может прыгать
+            self.jumping = False                             # self.moving - флаг нахождения на платформе
             self.rising = False
         else:
             self.moving = False
         if not self.moving:                                  # если не на земле
             if not self.rising:                              # если не взлетает
-                self.rect = self.rect.move(0, 3)             # падает
+                self.rect = self.rect.move(0, 1)             # падает
                 self.moving = False                          # анимация падения (или продолжение анимации прыжка)
             else:   # анимация взлета (ну или просто прыжка, если взлета нет)
                 self.rect = self.rect.move(0, -5)            # взлетает до тех пор, пока self.rising_timer не ноль
@@ -114,16 +115,22 @@ class MainCharacter(pygame.sprite.Sprite):
     def shoot(self, target):
         Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
 
+    def check_ground(self):
+        for elem in platforms_sp:
+            if pygame.sprite.spritecollideany(elem, main_character_gr) and elem.rect.top == self.rect.bottom - 1:
+                return True
+        return False
+
 
 class Platform(pygame.sprite.Sprite):
 
     # тестовое окружение
 
-    def __init__(self):
+    def __init__(self, x, y, width, height):
         super().__init__(platforms)
-        self.image = pygame.Surface((500, 100), pygame.SRCALPHA, 32)
-        pygame.draw.rect(self.image, pygame.Color('grey'), (0, 0, 500, 100))
-        self.rect = pygame.Rect(0, 400, 500, 200)
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA, 32)
+        pygame.draw.rect(self.image, pygame.Color('grey'), (0, 0, width, height))
+        self.rect = pygame.Rect(x, y, width, height)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -212,6 +219,8 @@ class Bullet(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, main_character_gr):
             main_character.get_damage()
             self.kill()
+        if pygame.sprite.spritecollideany(self, platforms):
+            self.kill()
 
 
 class Shuriken(Bullet):
@@ -229,6 +238,8 @@ class Shuriken(Bullet):
         if pygame.sprite.spritecollideany(self, enemies):
             for elem in enemies_sp:
                 elem.is_getting_shot()  # поиск противника, в которого попали
+            self.kill()
+        if pygame.sprite.spritecollideany(self, platforms):
             self.kill()
 
 
@@ -287,8 +298,10 @@ def game_over():
 
 
 main_character = MainCharacter()
-pl = Platform()  # вместо нее должна быть поверхность игрового мира
+pl = Platform(0, 400, 500, 200)  # вместо нее должна быть поверхность игрового мира
+pl1 = Platform(300, 350, 100, 10)
 ar = Archer(100, 250)
 we = GroundEnemy(150, 350, 40)
 enemies_sp = [we, ar]  # список врагов
 archers = [ar]  # список стрелков
+platforms_sp = [pl, pl1]

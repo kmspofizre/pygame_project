@@ -18,11 +18,13 @@ SHOOTING_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(SHOOTING_EVENT, 3000)
 main_character = characters.main_character
 pl = characters.pl
+pl1 = characters.pl1
 ar = characters.ar
 archers = characters.archers  # список стрелков
 we = characters.we
 running = True
-enemies_sp = [we, ar]  # список врагов
+enemies_sp = characters.enemies_sp  # список врагов
+platforms_sp = characters.platforms_sp
 
 if __name__ == '__main__':
     screen.fill(pygame.Color('black'))
