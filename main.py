@@ -296,16 +296,18 @@ class Coin(AnimatedSprite):
 class MainCharacter(AnimatedSprite):
 
     def __init__(self, sheet, columns, rows, x, y):
+        self.x = x
+        self.y = y
         self.sheet = sheet
         self.columns = columns
         self.rows = rows
-        data = (self.sheet, self.columns, self.rows, x, y, main_character_group)
+        data = (self.sheet, self.columns, self.rows, self.x, self.y, main_character_group)
         super().__init__(*data)
 
         self.image = self.frames[self.cur_frame]
 
         self.items = dict()
-        self.hp = 5
+        self.hp = 500
 
         self.moving = False
         self.rising = False
@@ -339,12 +341,15 @@ class MainCharacter(AnimatedSprite):
                 if self.rising_timer == 0:
                     self.rising = False
         if self.left and self.right:
+            # AnimatedSprite.cut_sheet(self, load_image("data/hero/lukang/idle_5_1.png", -1), 5, 1)
             pass
         elif self.left:
+            AnimatedSprite.cut_sheet(self, load_image("data/hero/lukang/move_5_2.png", -1), 5, 2)
             self.rect = self.rect.move(-1, 0)
             # камера
             level.sdvig_x(-1)
         elif self.right:
+            AnimatedSprite.cut_sheet(self, load_image("data/hero/lukang/move_5_2.png"), 5, 2)
             self.rect = self.rect.move(1, 0)
             # камера
             level.sdvig_x(1)
@@ -827,7 +832,7 @@ if __name__ == '__main__':
             level = Level(level_1, screen)
 
         # main_character = MainCharacter()
-        main_character = MainCharacter(load_image("./data/hero/lukang/idle_5_1.png", -1), 5, 1, 2, 400)
+        main_character = MainCharacter(load_image("./data/hero/lukang/move_5_2.png"), 5, 2, 2, 400)
         ar = Archer(100, 250)
         archers = [ar]  # список стрелков
         # we = GroundEnemy(150, 350, 40)
