@@ -1,7 +1,6 @@
 import os
 import sys
 import math
-from pygame_pr_characters import MainCharacter, Platform, Enemy, Archer, Bullet, GroundEnemy
 
 import pygame
 
@@ -30,8 +29,6 @@ def load_image(name, colorkey=None):
     return image
 
 
-
-
 class Resource(MainCharacter):
     def __init__(self, name, path, info):
         super().__init__()
@@ -45,7 +42,9 @@ class Inventory:
     def __init__(self):
         super(Inventory, self).__init__()
         icon = pygame.sprite.Sprite(interface)
-        icon.image = pygame.transform.scale(load_image("backpack.png"), (64, 64))
+        icon.image = pygame.transform.scale(
+            load_image("backpack.png"), (64, 64)
+        )
         icon.rect = icon.image.get_rect()
         icon.rect.x = 10
         icon.rect.y = 10
@@ -75,7 +74,9 @@ class Inventory:
         for name, resource in self.recources.items():
             if resource.amount != 0 and resource not in self.inventory_panel:
                 # TODO: сделать оповещение в инфопанели об отсутствии места
-                self.inventory_panel.insert(self.inventory_panel.index(None), resource)
+                self.inventory_panel.insert(
+                    self.inventory_panel.index(None), resource
+                )
                 self.inventory_panel.remove(None)
 
     def draw_inventory(self):

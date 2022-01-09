@@ -1,5 +1,8 @@
 import pygame
 
+pygame.init()
+
+
 # класс музыки и звуков
 class Sound(object):
     # инициализация класса
@@ -10,10 +13,11 @@ class Sound(object):
 
     # загрузка списка музыки и звуков из каталога
     def load_sounds(self):
-        self.sounds['game1'] = pygame.mixer.Sound('audio\\music1.mp3')
-        self.sounds['game2'] = pygame.mixer.Sound('audio\\music2.mp3')
-        self.sounds['game3'] = pygame.mixer.Sound('audio\\music3.mp3')
-        self.sounds['game4'] = pygame.mixer.Sound('audio\\music4.mp3')
+        self.sounds['game1'] = pygame.mixer.Sound('audio/music1.mp3')
+        self.sounds['game2'] = pygame.mixer.Sound('audio/music2.mp3')
+        self.sounds['game3'] = pygame.mixer.Sound('audio/music3.mp3')
+        self.sounds['game4'] = pygame.mixer.Sound('audio/music4.mp3')
+        self.sounds['game_over'] = pygame.mixer.Sound('audio/game_over.mp3')
 
     # воспроизведение звуков
     def play(self, name, loops, volume):
@@ -23,3 +27,6 @@ class Sound(object):
     # остановка воспроизведения звуков
     def stop(self, name):
         self.sounds[name].stop()
+
+
+sound = Sound()

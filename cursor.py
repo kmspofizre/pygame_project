@@ -1,21 +1,33 @@
-import pygame
 import os
 import sys
 
-def load_image(name, colorkey=None):
-    fullname = os.path.join('data\cursor', name)
+import pygame
+
+
+def load_image(name, color_key=None):
+    fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
-    image = pygame.image.load(fullname)
-    if colorkey is not None:
-        image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
+    image = pygame.image.load(fullname).convert()
+
+    if color_key is not None:
+        if color_key == -1:
+            color_key = image.get_at((0, 0))
+        image.set_colorkey(color_key)
     else:
         image = image.convert_alpha()
     return image
 
-# класс курсора
 
+# класс курсора
+class Cursor(pygame.sprite.Sprite):
+    # инициализация класса
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = load_image("data\cursor\cursor.gif")
+        self.rect = self.image.get_rect()
+
+
+cursor = pygame.sprite.Group()
+cur = Cursor(cursor)
