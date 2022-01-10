@@ -17,6 +17,7 @@ level_0 = {'surface': './levels/level0/level0_surface.csv',
 level_1 = {'surface': './levels/level1/level1_surface.csv',
            'cup': './levels/level1/level1_cup.csv',
            'bochki': './levels/level1/level1_bochki.csv',
+           'player': './levels/level1/level1_player.csv',
            'enemy': './levels/level1/level1_enemy.csv'}
 level_2 = {'surface': './levels/level2/level2_surface.csv'}
 
@@ -325,6 +326,7 @@ class Level:
 
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
+            sound.stop('game4')
             global running
             running = False
 
@@ -712,6 +714,7 @@ def game_over():
 def start_level():
     sound.play('game4', 10, 0.3)
 
+    global running
     running = True
     while running:
 
@@ -831,7 +834,7 @@ if __name__ == '__main__':
     game = Menu(menu_items)
 
     # создание персонажей
-    main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
+    #main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
     ar = Archer(100, 250)
     archers = [ar]  # список стрелков
 
@@ -841,13 +844,15 @@ if __name__ == '__main__':
     we = GroundEnemy(150, 350, 40, tile_surface)
     enemies_sp = [we, ar]  # список врагов
 
-    running = True
-    while running:
+    run = True
+    while run:
         game.menu()
         # инициализация уровня
         if level_change == 0:
+            main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
             level = Level(level_0, screen, main_character)
         elif level_change == 1:
+            main_character = MainCharacter(load_image("./data/hero/lukang.gif"), 2, 400, 1, 6)
             level = Level(level_1, screen, main_character)
 
         start_level()
