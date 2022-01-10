@@ -323,6 +323,11 @@ class Level:
     #    else:
     #        self.screen_shift = 0
 
+    def check_finish(self):
+        if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
+            global running
+            running = False
+
     # функция обновления tile уровня на экране
     def update(self):
         self.fon.draw(self.display_surface)
@@ -344,6 +349,8 @@ class Level:
         self.player.draw(self.display_surface)
         self.finish.update(self.screen_shift)
         self.finish.draw(self.display_surface)
+
+        self.check_finish()
 
 
 class MainCharacter(pygame.sprite.Sprite):
