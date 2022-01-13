@@ -769,7 +769,7 @@ def score():
         i = 0
         pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
 
-        screen.blit(font.render('Можно нажать левую кнопку мыши', 1, 'red'), (400, 700))
+      #  screen.blit(font.render('Можно нажать левую кнопку мыши', 1, 'red'), (400, 700))
 
         columns_name = ['Date and time', 'Score']
         for i in range(2):
@@ -799,9 +799,9 @@ def score():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                 active_menu = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # создаем частицы по щелчку мыши
-                create_particles(pygame.mouse.get_pos())
+            if event.type == SHOOTING_EVENT:
+                position = (random.randint(0, screen_width), random.randint(0, screen_height))
+                create_particles(position)
 
         all_sprites.draw(screen)
         all_sprites.update()
@@ -826,9 +826,12 @@ def result_level():
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                 sound.stop('game3')
                 active_result_level = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == SHOOTING_EVENT:
+                position = (random.randint(0, screen_width), random.randint(0, screen_height))
+                create_particles(position)
+           # if event.type == pygame.MOUSEBUTTONDOWN:
                 # создаем частицы по щелчку мыши
-                create_particles(pygame.mouse.get_pos())
+                # create_particles(pygame.mouse.get_pos())
 
         all_sprites.draw(screen)
         all_sprites.update()
