@@ -327,6 +327,7 @@ class Level:
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
             sound.stop('game4')
+            result_level()
             global running
             running = False
 
@@ -798,6 +799,33 @@ def score():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                 active_menu = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # создаем частицы по щелчку мыши
+                create_particles(pygame.mouse.get_pos())
+
+        all_sprites.draw(screen)
+        all_sprites.update()
+        pygame.display.flip()
+        clock1.tick(fps)
+
+
+def result_level():
+    sound.play('game3', 10, 0.3)
+    font = pygame.font.Font('fonts/Asessorc.otf', 30)
+
+    active_result_level = True
+    while active_result_level:
+        screen.fill(surface_color)
+
+        screen.blit(font.render('Результаты прохождения уровня', 1, 'red'), (400, 100))
+        screen.blit(font.render('Количество собранных монет: 0', 1, 'green'), (400, 200))
+        screen.blit(font.render('Количество убитых врагов: 0', 1, 'blue'), (400, 300))
+        screen.blit(font.render('Количество оставшихся жизней: 0', 1, 'yellow'), (400, 400))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
+                sound.stop('game3')
+                active_result_level = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # создаем частицы по щелчку мыши
                 create_particles(pygame.mouse.get_pos())
