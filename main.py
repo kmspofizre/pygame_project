@@ -9,12 +9,14 @@ import random
 surface_color = "#7ec0ee"
 
 # путь csv уровней
-level_0 = {'surface': './levels/level0/level0_surface.csv',
+level_0 = {'fon': './data/fon/first_level_fon.jpg',
+           'surface': './levels/level0/level0_surface.csv',
            'cup': './levels/level0/level0_cup.csv',
            'bochki': './levels/level0/level0_bochki.csv',
            'player': './levels/level0/level0_player.csv',
            'enemy': './levels/level0/level0_enemy.csv'}
-level_1 = {'surface': './levels/level1/level1_surface.csv',
+level_1 = {'fon': './data/fon/second_level_fon.png',
+           'surface': './levels/level1/level1_surface.csv',
            'cup': './levels/level1/level1_cup.csv',
            'bochki': './levels/level1/level1_bochki.csv',
            'player': './levels/level1/level1_player.csv',
@@ -33,7 +35,12 @@ bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
 main_character_group = pygame.sprite.Group()
 
-connection = sqlite3.connect('data\score.db')
+try:
+    connection = sqlite3.connect('data\score.db')
+except:
+    print('Не найден файл БД !')
+    sys.exit()
+
 
 gravity = 0.25
 
@@ -54,7 +61,12 @@ def import_csv(path):
 
 # функция создания списка поверхностей tile из одного файла png
 def import_cut_png(path):
-    surface = pygame.image.load(path).convert_alpha()
+    try:
+        surface = pygame.image.load(path).convert_alpha()
+    except:
+        print('Не найден файл tile для создания поверхности уровня !')
+        sys.exit()
+
     tile_x = int(surface.get_size()[0] / tile_size)
     tile_y = int(surface.get_size()[1] / tile_size)
 
@@ -96,7 +108,11 @@ def create_particles(position):
 
 class Particle(pygame.sprite.Sprite):
     # сгенерируем частицы разного размера
-    fire = [load_image("./data/star/star.png", -1)]
+    try:
+        fire = [load_image("./data/star/star.png", -1)]
+    except:
+        print('Не найден графический файл звёзд !')
+        sys.exit()
     for scale in (5, 10, 20):
         fire.append(pygame.transform.scale(fire[0], (scale, scale)))
 
@@ -129,7 +145,11 @@ class Cursor(pygame.sprite.Sprite):
     # инициализация класса
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("data\cursor\cursor.gif")
+        try:
+            self.image = load_image("data\cursor\cursor.gif")
+        except:
+            print('Не найден графический файл курсора !')
+            sys.exit()
         self.rect = self.image.get_rect()
 
 
@@ -143,10 +163,14 @@ class Sound(object):
 
     # загрузка списка музыки и звуков из каталога
     def load_sounds(self):
-        self.sounds['game1'] = pygame.mixer.Sound('audio\\music1.mp3')
-        self.sounds['game2'] = pygame.mixer.Sound('audio\\music2.mp3')
-        self.sounds['game3'] = pygame.mixer.Sound('audio\\music3.mp3')
-        self.sounds['game4'] = pygame.mixer.Sound('audio\\music4.mp3')
+        try:
+            self.sounds['game1'] = pygame.mixer.Sound('audio\\music1.mp3')
+            self.sounds['game2'] = pygame.mixer.Sound('audio\\music2.mp3')
+            self.sounds['game3'] = pygame.mixer.Sound('audio\\music3.mp3')
+            self.sounds['game4'] = pygame.mixer.Sound('audio\\music4.mp3')
+        except:
+            print('Не найдены файлы музыки и звуков !')
+            sys.exit()
 
     # воспроизведение звуков
     def play(self, name, loops, volume):
@@ -201,29 +225,12 @@ class AnimatedSprite(pygame.sprite.Sprite):
 
 # класс фона
 class Fon():
-    def __init__(self):
-       # self.first_level = pygame.image.load('./data/fon/.png').convert()
-        self.second_level = pygame.image.load('./data/fon/second_level_fon.png').convert()
-       # self.third_level = pygame.image.load('./data/fon/.png').convert()
-       # self.four_level = pygame.image.load('./data/fon/.png').convert()
-
-     #   self.first_level = pygame.transform.scale(self.first_level, (screen_width, screen_height))
-        self.second_level = pygame.transform.scale(self.second_level, (screen_width, screen_height))
-     #   self.third_level = pygame.transform.scale(self.third_level, (screen_width, screen_height))
-     #   self.four_level = pygame.transform.scale(self.four_level, (screen_width, screen_height))
+    def __init__(self, fon):
+       self.level_fon = pygame.image.load(fon).convert()
+       self.level_fon = pygame.transform.scale(self.level_fon, (screen_width, screen_height))
 
     def draw(self, surface):
-        #for stroki in range(tile_number_vertic):
-         #   rasmer_tile = stroki * tile_size
-         #   if row < 3:
-         #       surface.blit(self.first_level, (0, rasmer_tile))
-         #   elif row >= 3 and row <= 6:
-         #       surface.blit(self.second_level, (0, rasmer_tile))
-         #   elif row > 6:
-         #       surface.blit(self.third_level, (0, rasmer_tile))
-         #   else:
-         #       surface.blit(self.four_level, (0, rasmer_tile))
-        surface.blit(self.second_level, (0, 0))
+        surface.blit(self.level_fon, (0, 0))
 
 
 # класс уровня
@@ -237,7 +244,8 @@ class Level:
         self.finish = pygame.sprite.GroupSingle()
         self.player_setup(player_layout, main_charaster)
 
-        self.fon = Fon()
+        fon = level_data['fon']
+        self.fon = Fon(fon)
 
         surface_layout = import_csv(level_data['surface'])
         self.surface_sprites = self.create_tile_group(surface_layout, 'surface')
@@ -307,22 +315,12 @@ class Level:
         player_x = player.rect.centerx
         direction_x = player.direction.x
 
-        #if direction_x < 0:
         if player_x < screen_width / 2 and direction_x < 0:
-            self.screen_shift = 5
-        #elif direction_x > 0:
+            self.screen_shift = 10
         elif player_x > screen_width - (screen_width / 2) and direction_x > 0:
-            self.screen_shift = -5
+            self.screen_shift = -10
         else:
             self.screen_shift = 0
-
-            # def sdvig_x(self, direction_x):
-   #     if direction_x < 0:
-   #         self.screen_shift = 5
-    #    elif direction_x > 0:
-    #        self.screen_shift = -5
-    #    else:
-    #        self.screen_shift = 0
 
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
@@ -445,11 +443,11 @@ class MainCharacter(pygame.sprite.Sprite):
             pass
         elif self.left:
             self.rect = self.rect.move(-1, 0)
-            self.direction.x = -5
+            self.direction.x = -4
             self.face = False
         elif self.right:
             self.rect = self.rect.move(1, 0)
-            self.direction.x = 5
+            self.direction.x = 4
             self.face = True
         else:
             self.direction.x = 0
@@ -473,7 +471,6 @@ class MainCharacter(pygame.sprite.Sprite):
             self.right = False
 
     def jump(self):
-
         # переменная jumping позволяет передвигаться в воздухе
         self.rising = True  # rising - взлет, rising_timer - таймер взлета, которое изменяется в update
         self.rising_timer += 100
@@ -482,9 +479,7 @@ class MainCharacter(pygame.sprite.Sprite):
         self.rect = self.rect.move(0, -5)
 
     def get_damage(self):
-
         # получение урона от пуль и ходячих, если здоровье на нуле, то игра окончена
-
         self.hp -= 1
         if self.hp == 0:
             game_over()
@@ -645,10 +640,20 @@ class Menu:
         self.menu_item = menu_item
 
     def render(self, screen, font, num_menu_item):
-        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+        try:
+            font = pygame.font.Font('fonts/Asessorc.otf', 30)
+        except:
+            print('Не найден файл шрифта !')
+            sys.exit()
+
         screen.blit(font.render('Copyright 2021-2022', 1, 'red'), (450, 700))
 
-        font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
+        try:
+            font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
+        except:
+            print('Не найден файл шрифта !')
+            sys.exit()
+
         for i in self.menu_item:
             if num_menu_item == i[5]:
                 screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1] - 70))
@@ -660,7 +665,13 @@ class Menu:
         sound.play('game2', 10, 0.3)
         active_menu = True
         pygame.key.set_repeat(0, 0)
-        font_menu = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
+
+        try:
+            font_menu = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
+        except:
+            print('Не найден файл шрифта !')
+            sys.exit()
+
         menu_item = 0
         while active_menu:
             screen.fill((0, 100, 200))
@@ -758,7 +769,12 @@ def start_level():
 
 
 def score():
-    font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    try:
+        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    except:
+        print('Не найден файл шрифта !')
+        sys.exit()
+
     cur = connection.cursor()
     result = cur.execute("SELECT id, date, score FROM results").fetchall()
     result = sorted(result, key=lambda x: x[0], reverse=True)
@@ -768,8 +784,6 @@ def score():
         screen.fill(surface_color)
         i = 0
         pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
-
-      #  screen.blit(font.render('Можно нажать левую кнопку мыши', 1, 'red'), (400, 700))
 
         columns_name = ['Date and time', 'Score']
         for i in range(2):
@@ -811,7 +825,11 @@ def score():
 
 def result_level():
     sound.play('game3', 10, 0.3)
-    font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    try:
+        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    except:
+        print('Не найден файл шрифта !')
+        sys.exit()
 
     active_result_level = True
     while active_result_level:
@@ -829,9 +847,6 @@ def result_level():
             if event.type == SHOOTING_EVENT:
                 position = (random.randint(0, screen_width), random.randint(0, screen_height))
                 create_particles(position)
-           # if event.type == pygame.MOUSEBUTTONDOWN:
-                # создаем частицы по щелчку мыши
-                # create_particles(pygame.mouse.get_pos())
 
         all_sprites.draw(screen)
         all_sprites.update()
