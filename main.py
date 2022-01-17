@@ -45,7 +45,7 @@ except:
 gravity = 0.25
 
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Приключение ЛюКэнга')
+pygame.display.set_caption('Приключение ЛюКэнга в городе Владимир')
 screen_rect = (0, 0, screen_width, screen_height)
 
 
