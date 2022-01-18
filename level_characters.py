@@ -1,6 +1,5 @@
 import math
 import os
-import sys
 import csv
 
 import pygame
@@ -20,6 +19,7 @@ level_1 = {'surface': './levels/level1/level1_surface.csv',
            'enemy': './levels/level1/level1_enemy.csv'}
 level_2 = {'surface': './levels/level2/level2_surface.csv'}
 
+archers = []  # список стрелков
 enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
@@ -63,7 +63,6 @@ def import_cut_png(path):
 
 def load_image(name, color_key=None):
     fullname = os.path.join('', name)
-    print(fullname)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         raise FileNotFoundError(f"{fullname}")
@@ -213,7 +212,7 @@ class Level:
 
                     if type == 'enemy':
                         if znach == '0':
-                            sprite = GroundEnemy(x, y, 40)
+                            sprite = GroundEnemy(x, y - 50, 40)
                         if znach == '1':
                             continue
 
@@ -276,6 +275,9 @@ class Coin(AnimatedSprite):
         super().__init__(Coin.sprite_sheet, columns, rows, x, y)
         self.image = self.frames[self.cur_frame]
 
+    def take_coin(self):
+        self.kill()
+
 
 '''ПЕРСОНАЖИ'''
 
@@ -287,12 +289,13 @@ class MainCharacter(pygame.sprite.Sprite):
         super().__init__(main_character_group)
         self.cur_frame = 0
         self.frames = self.cut_sheet(
-            load_image("data/hero/lukang/move_5_2.png"),
+            load_image("data/hero/lukang/idle_5_1.png", -1),
             5, 2, self.x, self.y
         )
 
         self.items = dict()
-        self.hp = 50
+        self.coins = 0
+        self.hp = 30
 
         # self.rect = pygame.Rect(2, 350, 20, 20)
         self.face = True
@@ -336,7 +339,19 @@ class MainCharacter(pygame.sprite.Sprite):
             self.rising = False
         else:
             self.moving = False
+        if pygame.sprite.spritecollide(self, level.cup_sprites, True):
+            self.coins += 1
+            print(self.coins)
+
         if not self.moving:  # если не на земле
+            self.frames = self.cut_sheet(load_image("data/hero/lukang/jump_3_2.png"), 3, 2, self.rect.x,
+                                         self.rect.y)
+            if self.right:
+                self.rect = self.rect.move(3, 0)
+            if self.left:
+                self.frames = self.cut_sheet(load_image("data/hero/lukang/jump_3_2_left.png"), 3, 2, self.rect.x,
+                                             self.rect.y)
+                self.rect = self.rect.move(-3, 0)
             if not self.rising:  # если не взлетает
                 self.rect = self.rect.move(0, 1)  # падает
                 self.moving = False  # анимация падения (или продолжение анимации прыжка)
@@ -345,33 +360,42 @@ class MainCharacter(pygame.sprite.Sprite):
                 self.rising_timer -= 5  # rising_timer задается в функции jump
                 if self.rising_timer == 0:
                     self.rising = False
-        if self.right == self.left:
-            if not self.jumping:
-                self.standing = True
-        elif self.left:
-            self.rect = self.rect.move(-3, 0) # анимация движения влево
-            if not self.jumping:
-                self.standing = False
-        elif self.right:
-            self.rect = self.rect.move(3, 0)  # анимация движения вправо
-            if not self.jumping:
-                self.standing = False
-        if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
-            now = pygame.time.get_ticks()  # атака перезаряжается
-            if now - self.last >= 3000:
-                self.att = True
+        if self.moving:
+            if self.right == self.left:
+                if not self.jumping:
+                    self.frames = self.cut_sheet(load_image("data/hero/lukang/idle_5_1.png"), 5, 1, self.rect.x,
+                                                 self.rect.y)
+                    self.standing = True
+            elif self.left:
+                self.frames = self.cut_sheet(
+                    load_image("data/hero/lukang/move_5_2_left.png"), 5, 2, self.rect.x,
+                    self.rect.y
+                )
+                self.rect = self.rect.move(-3, 0)  # анимация движения влево
+                if not self.jumping:
+                    self.standing = False
+            elif self.right:
+                self.frames = self.cut_sheet(load_image("data/hero/lukang/move_5_2.png"), 5, 2, self.rect.x,
+                                             self.rect.y)
+                self.rect = self.rect.move(3, 0)  # анимация движения вправо
+                if not self.jumping:
+                    self.standing = False
+            if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
+                now = pygame.time.get_ticks()  # атака перезаряжается
+                if now - self.last >= 3000:
+                    self.att = True
 
     def walking(self, direction):
         # определение направления движения
-        if direction == pygame.K_LEFT:
+        if direction == pygame.K_a:
             self.left = True
-        elif direction == pygame.K_RIGHT:
+        elif direction == pygame.K_d:
             self.right = True
 
     def stop_walking(self, direction):
-        if direction == pygame.K_LEFT:
+        if direction == pygame.K_a:
             self.left = False
-        elif direction == pygame.K_RIGHT:
+        elif direction == pygame.K_d:
             self.right = False
 
     def jump(self):
@@ -396,7 +420,7 @@ class MainCharacter(pygame.sprite.Sprite):
         if self.att and self.jumping:
             pass  # атака в прыжке (разработаю, когда будет анимация атаки в прыжке)
         elif self.att:  # гг производит атаку и перезаряжает ее
-            for elem in enemies_sp:
+            for elem in enemies:
                 elem.is_under_attack()  # проверка для каждого игрока находится ли он в поле действия атаки
             self.att = False
             self.last = pygame.time.get_ticks()
@@ -442,7 +466,7 @@ class Enemy(pygame.sprite.Sprite):
         self.hp -= 1
         if self.hp == 0:
             self.kill()
-            enemies_sp.remove(self)
+            enemies.remove(self)
             if self in archers:
                 archers.remove(self)
 
@@ -450,15 +474,12 @@ class Enemy(pygame.sprite.Sprite):
 class Archer(Enemy):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
-        pygame.draw.rect(self.image, pygame.Color('green'), (0, 0, 20, 20))
-        self.rect = pygame.Rect(x, y, 20, 20)
+        self.image = load_image("data/enemy/archer.png")
+        self.rect = pygame.Rect(x, y, 100, 100)
         self.moving = False
 
     def update(self, *args):
-
         # проверка, стоит ли лучник на земле, если нет - падение
-
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.moving = True
         else:
@@ -467,19 +488,16 @@ class Archer(Enemy):
             self.rect = self.rect.move(0, 1)
 
     def shoot(self):
-
         # выстрел, при инициализации класса передаются координаты стрелка
-
         Bullet(self.rect.x, self.rect.y, main_character.rect.x, main_character.rect.y, bullets)
 
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, target_x, target_y, group):
         super().__init__(group)
-        self.image = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
-        pygame.draw.circle(self.image, pygame.Color("red"),
-                           (5, 5), 5)
-        self.rect = pygame.Rect(x, y, 2 * 5, 2 * 5)
+        self.frames = self.cut_sheet(load_image("data/enemy/bottle_12_2.png"), 12, 2, x, y)
+        self.rect = pygame.Rect(x, y, 50, 50)
+        self.cur_frame = 0
         # получение координат цели
         self.target_x = target_x
         self.target_y = target_y
@@ -506,7 +524,24 @@ class Bullet(pygame.sprite.Sprite):
         else:
             self.vx = math.ceil(paths[0] / (hypot / 4))
 
+    def cut_sheet(self, sheet, columns, rows, x, y):
+        self.rect = pygame.Rect(
+            x, y, sheet.get_width() // columns, sheet.get_height() // rows
+        )
+        frames = []
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                frames.append(
+                    sheet.subsurface(
+                        pygame.Rect(frame_location, self.rect.size)
+                    )
+                )
+        return frames
+
     def update(self):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
         # пуля перемещается на произведение скорости и расстояния и при соприкосновении
         # с главным героем уменьшает его здоровье и пропадает
 
@@ -531,7 +566,7 @@ class Shuriken(Bullet):
     def update(self):
         self.rect = self.rect.move(self.vx * self.dx, self.vy * self.dy)
         if pygame.sprite.spritecollideany(self, enemies):
-            for elem in enemies_sp:
+            for elem in enemies:
                 elem.is_getting_shot()  # поиск противника, в которого попали
             self.kill()
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
@@ -541,11 +576,13 @@ class Shuriken(Bullet):
 class GroundEnemy(Enemy):
     def __init__(self, x, y, walking_range):
         super().__init__()
-        self.image = pygame.Surface((20, 20), pygame.SRCALPHA, 32)
-        pygame.draw.rect(self.image, pygame.Color('pink'), (0, 0, 20, 20))
+        self.frames = self.cut_sheet(
+            load_image("data/enemy/idle_1_1.png"),
+            1, 1, x, y
+        )
         # начальная координата, которая является левой крайней точкой
         self.start_x = x
-        self.rect = pygame.Rect(x, y, 20, 20)
+        self.rect = pygame.Rect(x, y, 50, 100)
         # конечная координата
         self.walking_range = walking_range
         self.moving = False
@@ -553,18 +590,38 @@ class GroundEnemy(Enemy):
         self.cooldown = 3000
         self.last = 0
         self.direction = 1
+        self.cur_frame = 0
+        self.iteration_counter = 0
         self.attack_clock = pygame.time.Clock()
 
+    def cut_sheet(self, sheet, columns, rows, x, y):
+        self.rect = pygame.Rect(
+            x, y, sheet.get_width() // columns, sheet.get_height() // rows
+        )
+        frames = []
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                frames.append(
+                    sheet.subsurface(
+                        pygame.Rect(frame_location, self.rect.size)
+                    )
+                )
+        return frames
+
     def update(self, *args):
+        self.iteration_counter += 1
+        if self.iteration_counter % 3 == 0 or self.iteration_counter == 1:
+            self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+            self.image = self.frames[self.cur_frame]
+
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
-
             # если стоит на земле, то запускается цикличный обход
-
             self.moving = True
             self.walking()
         else:
             self.moving = False
-        if not self.moving:
+        if not self.moving:  # падение
             self.rect = self.rect.move(0, 1)
         if pygame.sprite.spritecollideany(self, main_character_group):
             if self.attack:
@@ -581,8 +638,18 @@ class GroundEnemy(Enemy):
     def walking(self):
         # цикличное хождение влево-вправо от стартовой позиции до стартовая позиция + walking_range
         if self.rect.x + 1 > self.start_x + self.walking_range:
+            self.frames = self.cut_sheet(
+               pygame.transform.flip(
+                   load_image("data/enemy/move_3_1.png"), True, False
+               ),
+               3, 1, self.rect.x, self.rect.y
+            )
             self.direction = -1
         elif self.rect.x - 1 < self.start_x:
+            self.frames = self.cut_sheet(
+                load_image("data/enemy/move_3_1.png"),
+                3, 1, self.rect.x, self.rect.y
+            )
             self.direction = 1
         self.rect = self.rect.move(1 * self.direction, 0)
 
@@ -591,4 +658,5 @@ level = Level(level_0, screen)
 
 main_character = MainCharacter(2, 400)
 ar = Archer(100, 250)
-archers = [ar]  # список стрелков
+enemies.add(ar)
+archers.append(ar)

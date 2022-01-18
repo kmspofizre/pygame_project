@@ -3,8 +3,9 @@ import pygame
 import game_settings
 
 from menu import menu
+from game_settings import screen
 from level_characters import level, archers, main_character
-from level_characters import shurikens, bullets, main_character_group
+from level_characters import shurikens, bullets, main_character_group, enemies
 from cursor import cursor, cur
 from sound import sound
 
@@ -44,19 +45,20 @@ def start_level():
         # вызов метода обновления экрана
         level.create()
 
-        # обработчик курсора
-        if pygame.mouse.get_focused():
-            cursor.draw(game_settings.screen)
-
         main_character.update()
         # enemies.update(0)
         shurikens.update()
         bullets.update()
         bullets.draw(game_settings.screen)
+        for archer in archers:
+            archer.update()
+        enemies.draw(screen)
         main_character_group.draw(game_settings.screen)
-        # enemies.draw(screen)
         game_settings.clock1.tick(game_settings.fps)
         # pygame.display.flip()
+        # обработчик курсора
+        if pygame.mouse.get_focused():
+            cursor.draw(game_settings.screen)
         pygame.display.update()
 
 
