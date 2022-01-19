@@ -221,7 +221,7 @@ class Level:
 
                     if type == 'enemy':
                         if znach == '0':
-                            sprite = GroundEnemy(x, y - 50, 40)
+                            sprite = GroundEnemy(x, y - 50, 40, 0)
                         if znach == '1':
                             continue
 
@@ -267,7 +267,7 @@ class Level:
         self.cup_sprites.draw(self.display_surface)
 
         self.enemy_sprites.update(self.screen_shift)
-        self.enemy_sprites.draw(self.display_surface)
+     #   self.enemy_sprites.draw(self.display_surface)
 
         ar.update_sdvig_x(self.screen_shift)
 
@@ -645,7 +645,7 @@ class Shuriken(Bullet):
 
 
 class GroundEnemy(Enemy):
-    def __init__(self, x, y, walking_range):
+    def __init__(self, x, y, walking_range, shift):
         super().__init__()
         self.frames = self.cut_sheet(
             load_image("data/enemy/idle_1_1.png"),
@@ -665,6 +665,9 @@ class GroundEnemy(Enemy):
         self.iteration_counter = 0
         self.attack_clock = pygame.time.Clock()
 
+        self.shift = shift
+
+
     def cut_sheet(self, sheet, columns, rows, x, y):
         self.rect = pygame.Rect(
             x, y, sheet.get_width() // columns, sheet.get_height() // rows
@@ -681,6 +684,9 @@ class GroundEnemy(Enemy):
         return frames
 
     def update(self, *args):
+        #сдвиг врага
+        self.rect.x += args[0]
+
         self.iteration_counter += 1
         if self.iteration_counter % 3 == 0 or self.iteration_counter == 1:
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
