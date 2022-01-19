@@ -2,6 +2,7 @@ import random
 from datetime import datetime
 
 import os
+from time import sleep
 
 from game_settings import *
 from cursor import cursor, cur
@@ -85,7 +86,7 @@ class Menu:
                 screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1]))
 
     def menu(self):
-        sound.play('game2', 10, 0.3)
+        sound.play('Lymez', 10, 0.3)
         active_menu = True
         pygame.key.set_repeat(0, 0)
         font_menu = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
@@ -107,7 +108,7 @@ class Menu:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         if menu_item == 0:
-                            sound.stop('game2')
+                            sound.stop('Lymez')
                             active_menu = False
                         if menu_item == 1:
                             sys.exit()
@@ -123,7 +124,7 @@ class Menu:
                     cur.rect = event.pos
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if menu_item == 0:
-                        sound.stop('game2')
+                        sound.stop('Lymez')
                         active_menu = False
                     if menu_item == 1:
                         print('rules')
@@ -134,6 +135,15 @@ class Menu:
 
             if pygame.mouse.get_focused():
                 cursor.draw(screen)
+
+            else:
+                position = (random.randint(0, screen_width), random.randint(0, screen_height))
+                create_particles(position)
+
+            all_sprites.draw(screen)
+            all_sprites.update()
+            clock1.tick(fps)
+
 
             pygame.display.update()
 

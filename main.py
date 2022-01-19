@@ -737,9 +737,9 @@ def start_level():
     while running:
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sound.stop('game4')
+            #if event.type == pygame.QUIT:
+          #      running = False
+          #      sound.stop('game4')
             # pygame.quit()
             # sys.exit()
             if event.type == game_settings.SHOOTING_EVENT:

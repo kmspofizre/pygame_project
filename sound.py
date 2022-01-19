@@ -19,6 +19,7 @@ class Sound(object):
             self.sounds['game3'] = pygame.mixer.Sound('audio/music3.mp3')
             self.sounds['game4'] = pygame.mixer.Sound('audio/music4.mp3')
             self.sounds['game_over'] = pygame.mixer.Sound('audio/game_over.mp3')
+            self.sounds['Lymez'] = pygame.mixer.Sound('audio/Lymez-Margaritas_at_Dawn.mp3')
         except:
             print('Не найдены файлы музыки и звуков !')
             sys.exit()
