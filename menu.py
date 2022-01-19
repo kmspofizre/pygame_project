@@ -1,5 +1,7 @@
 import sys
 import random
+from datetime import datetime
+
 import pygame
 import os
 
@@ -278,8 +280,22 @@ def result_level(coins, lifes, enemy_kill):
     enemy = enemy_kill
     score = coins + life + enemy_kill
 
-    # def insert sql
-   # запись количество очков в базу
+    #запись набранных очков в БД
+    result = connection.cursor()
+
+    now_date = datetime.now()
+    day = str(now_date.day)
+    month = str(now_date.month)
+    year = str(now_date.year)
+    hour = str(now_date.hour)
+    minute = str(now_date.minute)
+
+    zapis = f'{day}.{month.rjust(2, "0")}.{year} ' f'{hour.rjust(2, "0")}:{minute.rjust(2, "0")}'
+
+    result.execute('INSERT INTO results(date, score) VALUES(?, ?)', (zapis, score))
+    connection.commit()
+    result.close()
+
 
     sound.play('game3', 10, 0.3)
     try:
