@@ -304,8 +304,9 @@ class MainCharacter(pygame.sprite.Sprite):
         self.jumping = False
         self.left = False
         self.right = False
-        self.reloading = True
+        self.reloading = False
         self.standing = True  # флаг неподвижности
+        self.attack_timer = 0
         self.last = 0
         self.rising_timer = 0
         self.iteration_counter = 0
@@ -382,12 +383,14 @@ class MainCharacter(pygame.sprite.Sprite):
                     self.standing = False
             if self.is_attacking:
                 self.left = self.right = False
-                # TODO: анимация атаки
                 self.standing = False
-            if not self.reloading:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
+                now1 = pygame.time.get_ticks()
+                if now1 - self.attack_timer >= 1000:
+                    self.is_attacking = False
+            if self.reloading:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
                 now = pygame.time.get_ticks()  # атака перезаряжается
                 if now - self.last >= 4000:
-                    self.reloading = True
+                    self.reloading = False
 
     def walking(self, direction):
         # определение направления движения
@@ -426,8 +429,9 @@ class MainCharacter(pygame.sprite.Sprite):
         elif self.reloading:  # гг производит атаку и перезаряжает ее
             for elem in enemies:
                 elem.is_under_attack()  # проверка для каждого игрока находится ли он в поле действия атаки
-            self.reloading = False
+            self.reloading = True
             self.last = pygame.time.get_ticks()
+            self.attack_timer = pygame.time.get_ticks()
 
     def shoot(self, target):
         Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
