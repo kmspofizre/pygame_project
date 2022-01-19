@@ -275,6 +275,10 @@ def score():
 def result_level(coins, lifes):
     coin = coins
     life = lifes
+    score = coins + life
+
+    # def insert sql
+   # запись количество очков в базу
 
     sound.play('game3', 10, 0.3)
     try:
@@ -288,9 +292,10 @@ def result_level(coins, lifes):
         screen.fill(surface_color)
 
         screen.blit(font.render('Результаты прохождения уровня', 3, 'red'), (400, 100))
-        screen.blit(font.render(f'Количество собранных монет: {coin}', 1, 'red'), (400, 200))
-        screen.blit(font.render('Количество убитых врагов: 0', 1, 'blue'), (400, 300))
-        screen.blit(font.render(f'Количество оставшихся жизней: {life}', 1, 'yellow'), (400, 400))
+        screen.blit(font.render(f'Вы заработали {score} очков', 1, 'yellow'), (400, 200))
+        screen.blit(font.render(f'Количество собранных монет: {coin}', 1, 'red'), (400, 300))
+        screen.blit(font.render('Количество убитых врагов: 0', 1, 'blue'), (400, 400))
+        screen.blit(font.render(f'Количество оставшегося здоровья: {life}', 1, 'yellow'), (400, 500))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
