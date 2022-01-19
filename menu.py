@@ -269,7 +269,10 @@ def score():
         pygame.display.update()
 
 
-def result_level():
+def result_level(coins, lifes):
+    coin = coins
+    life = lifes
+
     sound.play('game3', 10, 0.3)
     try:
         font = pygame.font.Font('fonts/Asessorc.otf', 30)
@@ -281,10 +284,10 @@ def result_level():
     while active_result_level:
         screen.fill(surface_color)
 
-        screen.blit(font.render('Результаты прохождения уровня', 1, 'red'), (400, 100))
-        screen.blit(font.render('Количество собранных монет: 0', 1, 'green'), (400, 200))
+        screen.blit(font.render('Результаты прохождения уровня', 3, 'red'), (400, 100))
+        screen.blit(font.render(f'Количество собранных монет: {coin}', 1, 'red'), (400, 200))
         screen.blit(font.render('Количество убитых врагов: 0', 1, 'blue'), (400, 300))
-        screen.blit(font.render('Количество оставшихся жизней: 0', 1, 'yellow'), (400, 400))
+        screen.blit(font.render(f'Количество оставшихся жизней: {life}', 1, 'yellow'), (400, 400))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):

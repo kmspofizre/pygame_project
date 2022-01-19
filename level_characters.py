@@ -237,7 +237,7 @@ class Level:
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
             sound.stop('game4')
-            result_level()
+            result_level(main_character.coins, main_character.hp)
             global running
             running = False
 
