@@ -16,6 +16,7 @@ def start_level():
     running = True
     while running:
         for event in pygame.event.get():
+            keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
                 running = False
                 sound.stop('game4')
@@ -27,10 +28,14 @@ def start_level():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and main_character.moving:
                     main_character.jump()
-                if main_character.moving or main_character.jumping:
-                    main_character.walking(event.key)
+                main_character.walking(event.key)
             if event.type == pygame.KEYUP:
                 main_character.stop_walking(event.key)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    main_character.shoot(event.pos)
+            #if keys[pygame.K_TAB]:
+            #    inventory.draw_inventory()
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
 
@@ -48,6 +53,7 @@ def start_level():
         main_character.update()
         # enemies.update(0)
         shurikens.update()
+        shurikens.draw(screen)
         bullets.update()
         bullets.draw(game_settings.screen)
         for archer in archers:

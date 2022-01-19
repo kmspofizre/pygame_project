@@ -295,16 +295,16 @@ class MainCharacter(pygame.sprite.Sprite):
 
         self.items = dict()
         self.coins = 0
-        self.hp = 30
+        self.hp = 100
 
-        # self.rect = pygame.Rect(2, 350, 20, 20)
+        self.is_attacking = False
         self.face = True
         self.moving = False
         self.rising = False
         self.jumping = False
         self.left = False
         self.right = False
-        self.att = True
+        self.reloading = True
         self.standing = True  # флаг неподвижности
         self.last = 0
         self.rising_timer = 0
@@ -380,22 +380,26 @@ class MainCharacter(pygame.sprite.Sprite):
                 self.rect = self.rect.move(3, 0)  # анимация движения вправо
                 if not self.jumping:
                     self.standing = False
-            if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
+            if self.is_attacking:
+                self.left = self.right = False
+                # TODO: анимация атаки
+                self.standing = False
+            if not self.reloading:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
                 now = pygame.time.get_ticks()  # атака перезаряжается
-                if now - self.last >= 3000:
-                    self.att = True
+                if now - self.last >= 4000:
+                    self.reloading = True
 
     def walking(self, direction):
         # определение направления движения
-        if direction == pygame.K_a:
+        if direction == pygame.K_LEFT:
             self.left = True
-        elif direction == pygame.K_d:
+        elif direction == pygame.K_RIGHT:
             self.right = True
 
     def stop_walking(self, direction):
-        if direction == pygame.K_a:
+        if direction == pygame.K_LEFT:
             self.left = False
-        elif direction == pygame.K_d:
+        elif direction == pygame.K_RIGHT:
             self.right = False
 
     def jump(self):
@@ -409,20 +413,20 @@ class MainCharacter(pygame.sprite.Sprite):
         self.rect = self.rect.move(0, -5)
 
     def get_damage(self):
-
         # получение урона от пуль и ходячих, если здоровье на нуле - игра окончена
-
-        self.hp -= 1
-        if self.hp == 0:
-            game_over()
+        if not self.is_attacking:
+            self.hp -= 1
+            if self.hp == 0:
+                game_over()
 
     def attack(self):
-        if self.att and self.jumping:
+        self.is_attacking = True
+        if self.reloading and self.jumping:
             pass  # атака в прыжке (разработаю, когда будет анимация атаки в прыжке)
-        elif self.att:  # гг производит атаку и перезаряжает ее
+        elif self.reloading:  # гг производит атаку и перезаряжает ее
             for elem in enemies:
                 elem.is_under_attack()  # проверка для каждого игрока находится ли он в поле действия атаки
-            self.att = False
+            self.reloading = False
             self.last = pygame.time.get_ticks()
 
     def shoot(self, target):
@@ -556,11 +560,10 @@ class Bullet(pygame.sprite.Sprite):
 class Shuriken(Bullet):
     def __init__(self, x, y, target_x, target_y, group):
         super().__init__(x, y, target_x, target_y, group)
+        self.image = load_image("data/hero/lukang/shuriken.png")
+        self.rect = self.image.get_rect()
         self.waiting = False
         self.touch_time = 0
-        self.image = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
-        pygame.draw.circle(self.image, pygame.Color("white"),
-                           (5, 5), 5)
         self.rect = pygame.Rect(x, y, 2 * 5, 2 * 5)
 
     def update(self):
