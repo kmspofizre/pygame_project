@@ -1,8 +1,6 @@
-import sys
 import random
 from datetime import datetime
 
-import pygame
 import os
 
 from game_settings import *

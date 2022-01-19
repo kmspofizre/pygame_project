@@ -201,8 +201,6 @@ class Level:
     def create_tile_group(self, lay, type):
         sprite_group = pygame.sprite.Group()
 
-     #   sprite_group.clear(screen, screen)
-
         for r_index, row in enumerate(lay):
             for c_index, znach in enumerate(row):
                 if znach != '-1':
@@ -246,6 +244,10 @@ class Level:
 
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
+            #удаление лишних врагов с экрана
+            for sprite in self.enemy_sprites:
+               # if isinstance(sprite, GroundEnemy):
+               sprite.kill()
             sound.stop('game4')
             result_level(main_character.coins, main_character.hp, main_character.enemy_kill)
             global running
@@ -267,7 +269,7 @@ class Level:
         self.enemy_sprites.update(self.screen_shift)
         self.enemy_sprites.draw(self.display_surface)
 
-        enemies.update(self.screen_shift)
+        ar.update_sdvig_x(self.screen_shift)
 
         self.player.update()
         self.sdvig_x()
@@ -505,9 +507,7 @@ class MainCharacter(pygame.sprite.Sprite):
 
 
 class Platform(pygame.sprite.Sprite):
-
     # тестовое окружение
-
     def __init__(self, x, y, width, height):
         super().__init__(level.surface_sprites)
         self.image = pygame.Surface((width, height), pygame.SRCALPHA, 32)
@@ -538,9 +538,6 @@ class Enemy(pygame.sprite.Sprite):
             if self in archers:
                 archers.remove(self)
 
-    def update(self, shift):
-        self.rect.x += shift
-
 
 class Archer(Enemy):
     def __init__(self, x, y):
@@ -557,6 +554,9 @@ class Archer(Enemy):
             self.moving = False
         if not self.moving:
             self.rect = self.rect.move(0, 1)
+
+    def update_sdvig_x(self, shift):
+        self.rect.x += shift
 
     def shoot(self):
         # выстрел, при инициализации класса передаются координаты стрелка
@@ -709,6 +709,7 @@ class GroundEnemy(Enemy):
     def update_sdvig_x(self, shift):
         self.rect.x += shift
 
+
     def walking(self):
         # цикличное хождение влево-вправо от стартовой позиции до стартовая позиция + walking_range
         if self.rect.x + 1 > self.start_x + self.walking_range:
@@ -768,6 +769,7 @@ def start_level():
         #main_character_group.draw(game_settings.screen)
         game_settings.clock1.tick(game_settings.fps)
         # pygame.display.flip()
+
         # обработчик курсора
         if pygame.mouse.get_focused():
             cursor.draw(game_settings.screen)
@@ -787,9 +789,9 @@ if __name__ == '__main__':
     # инициализация курсора
     pygame.mouse.set_visible(False)
 
-    ar = Archer(100, 250)
-    enemies.add(ar)
-    archers.append(ar)
+    #ar = Archer(100, 250)
+   # enemies.add(ar)
+   # archers.append(ar)
 
     spisok_level = [level_0, level_1, level_2]
 
@@ -797,20 +799,16 @@ if __name__ == '__main__':
     while run:
         menu.menu()
         for number in spisok_level:
+            ar = Archer(100, 250)
+            enemies.add(ar)
+            archers.append(ar)
             main_character = MainCharacter(2, 400)
+
             level = Level(number, screen, main_character)
             start_level()
 
+            ar.kill()
+            archers.clear()
+
+
 pygame.quit()
-
-
-
-
-
-
-
-
-
-
-
-
