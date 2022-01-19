@@ -1,9 +1,70 @@
 import sys
+import random
 import pygame
+import os
 
-from game_settings import screen, surface_color, screen_width, connection
+from game_settings import *
 from cursor import cursor, cur
 from sound import sound
+
+all_sprites = pygame.sprite.Group()
+
+def load_image(name, color_key=None):
+    fullname = os.path.join('', name)
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        raise FileNotFoundError(f"{fullname}")
+    image = pygame.image.load(fullname)
+    if color_key is not None:
+        image = image.convert()
+        if color_key == -1:
+            color_key = image.get_at((0, 0))
+        image.set_colorkey(color_key)
+    return image
+
+
+def create_particles(position):
+    # количество создаваемых частиц
+    particle_count = 20
+    # возможные скорости
+    numbers = range(-5, 6)
+    for _ in range(particle_count):
+        Particle(position, random.choice(numbers), random.choice(numbers))
+
+
+class Particle(pygame.sprite.Sprite):
+    # сгенерируем частицы разного размера
+    try:
+        fire = [load_image("./data/star/star.png", -1)]
+    except:
+        print('Не найден графический файл звёзд !')
+        sys.exit()
+    for scale in (5, 10, 20):
+        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
+
+    def __init__(self, pos, dx, dy):
+        super().__init__(all_sprites)
+        self.image = random.choice(self.fire)
+        self.rect = self.image.get_rect()
+
+        # у каждой частицы своя скорость - это вектор
+        self.velocity = [dx, dy]
+        # и свои координаты
+        self.rect.x, self.rect.y = pos
+
+        # гравитация будет одинаковой
+        self.gravity = gravity
+
+    def update(self):
+        # применяем гравитационный эффект:
+        # движение с ускорением под действием гравитации
+        self.velocity[1] += self.gravity
+        # перемещаем частицу
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
+        # убиваем, если частица ушла за экран
+        if not self.rect.colliderect(screen_rect):
+            self.kill()
 
 
 class Menu:
@@ -152,53 +213,48 @@ def score():
     result = cur.execute("SELECT id, date, score FROM results").fetchall()
     result = sorted(result, key=lambda x: x[0], reverse=True)
 
-    i = 0
-    pygame.draw.line(
-        screen, pygame.Color('white'), (64, 64 * i + 64),
-        (screen_width - 64, 64 * i + 64), 5
-    )
-
-    columns_name = ['Date and time', 'Score']
-    for i in range(2):
-        name = columns_name[i]
-        naimenovania = font.render(name, 1, pygame.Color('yellow'))
-        naimenovania_rect = naimenovania.get_rect()
-        naimenovania_rect.x = 500 * i + 128
-        naimenovania_rect.y = 64 + 12
-        screen.blit(naimenovania, naimenovania_rect)
-
-    for i in range(9):
-        pygame.draw.line(
-            screen, pygame.Color('white'),
-            (64, 64 * (i + 1) + 64),
-            (screen_width - 64, 64 * (i + 1) + 64), 5
-        )
-
-        if i < 8:
-            for k in range(2):
-                text_rend = font.render(
-                    str(result[i][k + 1]), 1, pygame.Color('yellow')
-                )
-                text_rect = text_rend.get_rect()
-                text_rect.x = 500 * k + 128
-                text_rect.y = (64 * (i + 1) + 76)
-                screen.blit(text_rend, text_rect)
-
-        for k in range(3):
-            pygame.draw.line(screen, pygame.Color('white'),
-                             (535 * k + 64, 64 * i + 64),
-                             (535 * k + 64, 64 * (i + 1) + 64), 5
-                             )
-
     active_menu = True
     while active_menu:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                active_menu = False
-            if event.type == pygame.K_ESCAPE:
-                active_menu = False
+        screen.fill(surface_color)
+        i = 0
+        pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
 
+        columns_name = ['Date and time', 'Score']
+        for i in range(2):
+            name = columns_name[i]
+            naimenovania = font.render(name, 1, pygame.Color('yellow'))
+            naimenovania_rect = naimenovania.get_rect()
+            naimenovania_rect.x = 500 * i + 128
+            naimenovania_rect.y = 64 + 12
+            screen.blit(naimenovania, naimenovania_rect)
+
+        for i in range(9):
+            pygame.draw.line(screen, pygame.Color('white'), (64, 64 * (i + 1) + 64),
+                             (screen_width - 64, 64 * (i + 1) + 64), 5)
+
+            if i < 8:
+                for k in range(2):
+                    text_rend = font.render(str(result[i][k + 1]), 1, pygame.Color('yellow'))
+                    text_rect = text_rend.get_rect()
+                    text_rect.x = 500 * k + 128
+                    text_rect.y = (64 * (i + 1) + 76)
+                    screen.blit(text_rend, text_rect)
+
+            for k in range(3):
+                pygame.draw.line(screen, pygame.Color('white'), (535 * k + 64, 64 * i + 64),
+                                 (535 * k + 64, 64 * (i + 1) + 64), 5)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
+                active_menu = False
+            if event.type == SHOOTING_EVENT:
+                position = (random.randint(0, screen_width), random.randint(0, screen_height))
+                create_particles(position)
+
+        all_sprites.draw(screen)
+        all_sprites.update()
         pygame.display.flip()
+        clock1.tick(fps)
 
 
 # создание меню

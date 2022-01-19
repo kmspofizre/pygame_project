@@ -15,7 +15,10 @@ SHOOTING_EVENT = pygame.USEREVENT + 1
 screen_height = tile_number_vertic * tile_size
 screen_width = 1200
 screen = pygame.display.set_mode((screen_width, screen_height))
+screen_rect = (0, 0, screen_width, screen_height)
 
 connection = sqlite3.connect('data\score.db')
+
+gravity = 0.25
 
 surface_color = "#7ec0ee"

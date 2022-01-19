@@ -134,35 +134,13 @@ class AnimatedSprite(pygame.sprite.Sprite):
 
 
 # класс фона
-class Fon:
-    def __init__(self):
-        # self.first_level = pygame.image.load('./data/fon/.png').convert()
-        self.second_level = pygame.image.load(
-            './data/fon/second_level_fon.png'
-        ).convert()
-        # self.third_level = pygame.image.load('./data/fon/.png').convert()
-        # self.four_level = pygame.image.load('./data/fon/.png').convert()
-
-        #   self.first_level = pygame.transform.scale(self.first_level, (screen_width, screen_height))
-        self.second_level = pygame.transform.scale(
-            self.second_level, (screen_width, screen_height)
-        )
-
-    #   self.third_level = pygame.transform.scale(self.third_level, (screen_width, screen_height))
-    #   self.four_level = pygame.transform.scale(self.four_level, (screen_width, screen_height))
+class Fon():
+    def __init__(self, fon):
+       self.level_fon = pygame.image.load(fon).convert()
+       self.level_fon = pygame.transform.scale(self.level_fon, (screen_width, screen_height))
 
     def draw(self, surface):
-        # for stroki in range(tile_number_vertic):
-        #   rasmer_tile = stroki * tile_size
-        #   if row < 3:
-        #       surface.blit(self.first_level, (0, rasmer_tile))
-        #   elif row >= 3 and row <= 6:
-        #       surface.blit(self.second_level, (0, rasmer_tile))
-        #   elif row > 6:
-        #       surface.blit(self.third_level, (0, rasmer_tile))
-        #   else:
-        #       surface.blit(self.four_level, (0, rasmer_tile))
-        surface.blit(self.second_level, (0, 0))
+        surface.blit(self.level_fon, (0, 0))
 
 
 # класс уровня
@@ -176,7 +154,8 @@ class Level:
         self.finish = pygame.sprite.GroupSingle()
         self.player_setup(player_layout, main_charaster)
 
-        self.fon = Fon()
+        fon = level_data['fon']
+        self.fon = Fon(fon)
 
         surface_layout = import_csv(level_data['surface'])
         self.surface_sprites = self.create_tile_group(
@@ -362,6 +341,19 @@ class MainCharacter(pygame.sprite.Sprite):
                     )
                 )
         return frames
+
+    # мой обработчик клавиш
+    #  def get_input(self):
+    #       keys = pygame.key.get_pressed()
+
+    #       if keys[pygame.K_RIGHT]:
+    #           self.direction.x = 5
+    #           self.face = True
+    #        elif keys[pygame.K_LEFT]:
+    #           self.direction.x = -5
+    #           self.face = False
+    #       else:
+    #          self.direction.x = 0
 
     def update(self, *args):
         self.iteration_counter += 1
