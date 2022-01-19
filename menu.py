@@ -9,6 +9,7 @@ from sound import sound
 
 all_sprites = pygame.sprite.Group()
 
+
 def load_image(name, color_key=None):
     fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
@@ -256,10 +257,16 @@ def score():
                 position = (random.randint(0, screen_width), random.randint(0, screen_height))
                 create_particles(position)
 
+        if pygame.mouse.get_focused():
+            cursor.draw(screen)
+
+        pygame.mouse.set_visible(True)
+
         all_sprites.draw(screen)
         all_sprites.update()
-        pygame.display.flip()
         clock1.tick(fps)
+
+        pygame.display.update()
 
 
 def result_level():
@@ -287,10 +294,17 @@ def result_level():
                 position = (random.randint(0, screen_width), random.randint(0, screen_height))
                 create_particles(position)
 
+        if pygame.mouse.get_focused():
+            cursor.draw(screen)
+
+        pygame.mouse.set_visible(True)
+
         all_sprites.draw(screen)
         all_sprites.update()
-        pygame.display.flip()
         clock1.tick(fps)
+
+        pygame.display.update()
+
 
 # создание меню
 menu_items = [(510, 210, u'Game', 'yellow', 'red', 0),
