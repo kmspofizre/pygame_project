@@ -272,10 +272,11 @@ def score():
         pygame.display.update()
 
 
-def result_level(coins, lifes):
+def result_level(coins, lifes, enemy_kill):
     coin = coins
     life = lifes
-    score = coins + life
+    enemy = enemy_kill
+    score = coins + life + enemy_kill
 
     # def insert sql
    # запись количество очков в базу

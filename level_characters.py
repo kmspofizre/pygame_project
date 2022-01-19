@@ -237,7 +237,7 @@ class Level:
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
             sound.stop('game4')
-            result_level(main_character.coins, main_character.hp)
+            result_level(main_character.coins, main_character.hp, main_character.enemy_kill)
             global running
             running = False
 
@@ -318,6 +318,7 @@ class MainCharacter(pygame.sprite.Sprite):
         self.items = dict()
         self.coins = 0
         self.hp = 30
+        self.enemy_kill = 0
 
         # вектор движения героя
         self.direction = pygame.math.Vector2(0, 0)
@@ -382,7 +383,7 @@ class MainCharacter(pygame.sprite.Sprite):
             self.moving = False
         if pygame.sprite.spritecollide(self, level.cup_sprites, True):
             self.coins += 1
-            print(self.coins)
+           # print(self.coins)
 
         if not self.moving:  # если не на земле
             self.frames = self.cut_sheet(load_image("data/hero/lukang/jump_3_2.png"), 3, 2, self.rect.x,
