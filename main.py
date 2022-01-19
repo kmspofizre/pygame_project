@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     # инициализация звука и музыки
 
-    pygame.display.set_caption('Приключение Лю Кэнга')
+    pygame.display.set_caption('Приключение Лю Кэнга во Владимире')
     # инициализация курсора
     pygame.mouse.set_visible(False)
 

@@ -74,7 +74,8 @@ class Menu:
 
     def render(self, screen, font, num_menu_item):
         font = pygame.font.Font('fonts/Asessorc.otf', 30)
-        screen.blit(font.render('Copyright 2021-2022', 1, 'red'), (450, 700))
+        screen.blit(font.render('Приключение Лю Кэнга во Владимире', 1, 'red'), (350, 100))
+        screen.blit(font.render('Copyright 2021-2022', 1, 'green'), (450, 700))
 
         font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
         for i in self.menu_item:
@@ -215,8 +216,8 @@ def score():
         print('Не найден файл шрифта !')
         sys.exit()
 
-    cur = connection.cursor()
-    result = cur.execute("SELECT id, date, score FROM results").fetchall()
+    result = connection.cursor()
+    result = result.execute("SELECT id, date, score FROM results").fetchall()
     result = sorted(result, key=lambda x: x[0], reverse=True)
 
     active_menu = True
@@ -256,11 +257,13 @@ def score():
             if event.type == SHOOTING_EVENT:
                 position = (random.randint(0, screen_width), random.randint(0, screen_height))
                 create_particles(position)
+            if event.type == pygame.MOUSEMOTION:
+                cur.rect = event.pos
 
         if pygame.mouse.get_focused():
             cursor.draw(screen)
 
-        pygame.mouse.set_visible(True)
+       # pygame.mouse.set_visible(True)
 
         all_sprites.draw(screen)
         all_sprites.update()
@@ -296,11 +299,13 @@ def result_level(coins, lifes):
             if event.type == SHOOTING_EVENT:
                 position = (random.randint(0, screen_width), random.randint(0, screen_height))
                 create_particles(position)
+            if event.type == pygame.MOUSEMOTION:
+                cur.rect = event.pos
 
         if pygame.mouse.get_focused():
             cursor.draw(screen)
 
-        pygame.mouse.set_visible(True)
+       # pygame.mouse.set_visible(True)
 
         all_sprites.draw(screen)
         all_sprites.update()
