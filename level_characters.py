@@ -710,16 +710,16 @@ class GroundEnemy(Enemy):
         self.rect = self.rect.move(1 * self.direction, 0)
 
 
-level_change = 0
+#level_change = 0
 
-if level_change == 0:
-    main_character = MainCharacter(2, 400)
-    level = Level(level_0, screen, main_character)
-elif level_change == 1:
-    main_character = MainCharacter(2, 400)
-    level = Level(level_0, screen, main_character)
+#if level_change == 0:
+ #   main_character = MainCharacter(2, 400)
+ #   level = Level(level_0, screen, main_character)
+#elif level_change == 1:
+##    main_character = MainCharacter(2, 400)
+ #   level = Level(level_0, screen, main_character)
 
 
-ar = Archer(100, 250)
-enemies.add(ar)
-archers.append(ar)
+#ar = Archer(100, 250)
+#enemies.add(ar)
+#archers.append(ar)
