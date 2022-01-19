@@ -1,5 +1,5 @@
 import sqlite3
-
+import sys
 import pygame
 
 # настройка размера экрана и размера tile
@@ -17,7 +17,11 @@ screen_width = 1200
 screen = pygame.display.set_mode((screen_width, screen_height))
 screen_rect = (0, 0, screen_width, screen_height)
 
-connection = sqlite3.connect('data\score.db')
+try:
+    connection = sqlite3.connect('data\score.db')
+except:
+    print('Не найден файл БД !')
+    sys.exit()
 
 gravity = 0.25
 

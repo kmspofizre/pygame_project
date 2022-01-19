@@ -55,7 +55,6 @@ def start_level():
 
 
 if __name__ == '__main__':
-    level_change = 0
     pygame.init()
 
     pygame.time.set_timer(game_settings.SHOOTING_EVENT, 3000)

@@ -208,7 +208,12 @@ class EndMenu:
 def score():
     screen.fill(surface_color)
 
-    font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    try:
+        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    except:
+        print('Не найден файл шрифта !')
+        sys.exit()
+
     cur = connection.cursor()
     result = cur.execute("SELECT id, date, score FROM results").fetchall()
     result = sorted(result, key=lambda x: x[0], reverse=True)
@@ -256,6 +261,36 @@ def score():
         pygame.display.flip()
         clock1.tick(fps)
 
+
+def result_level():
+    sound.play('game3', 10, 0.3)
+    try:
+        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+    except:
+        print('Не найден файл шрифта !')
+        sys.exit()
+
+    active_result_level = True
+    while active_result_level:
+        screen.fill(surface_color)
+
+        screen.blit(font.render('Результаты прохождения уровня', 1, 'red'), (400, 100))
+        screen.blit(font.render('Количество собранных монет: 0', 1, 'green'), (400, 200))
+        screen.blit(font.render('Количество убитых врагов: 0', 1, 'blue'), (400, 300))
+        screen.blit(font.render('Количество оставшихся жизней: 0', 1, 'yellow'), (400, 400))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
+                sound.stop('game3')
+                active_result_level = False
+            if event.type == SHOOTING_EVENT:
+                position = (random.randint(0, screen_width), random.randint(0, screen_height))
+                create_particles(position)
+
+        all_sprites.draw(screen)
+        all_sprites.update()
+        pygame.display.flip()
+        clock1.tick(fps)
 
 # создание меню
 menu_items = [(510, 210, u'Game', 'yellow', 'red', 0),

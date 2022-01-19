@@ -6,7 +6,7 @@ import pygame
 
 from game_settings import screen_width, screen_height, tile_size, screen
 from sound import sound
-from menu import end_menu
+from menu import end_menu, result_level
 
 # путь csv уровней
 level_0 = {'fon': './data/fon/first_level_fon.jpg',
@@ -234,6 +234,13 @@ class Level:
         else:
             self.screen_shift = 0
 
+    def check_finish(self):
+        if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
+            sound.stop('game4')
+            result_level()
+            global running
+            running = False
+
     # функция обновления tile уровня на экране
     def update(self):
         self.fon.draw(self.display_surface)
@@ -255,6 +262,8 @@ class Level:
         self.player.draw(self.display_surface)
         self.finish.update(self.screen_shift)
         self.finish.draw(self.display_surface)
+
+        self.check_finish()
 
 
 class Surface:

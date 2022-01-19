@@ -25,7 +25,11 @@ class Cursor(pygame.sprite.Sprite):
     # инициализация класса
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("data\cursor\cursor.gif")
+        try:
+            self.image = load_image("data\cursor\cursor.gif")
+        except:
+            print('Не найден графический файл курсора !')
+            sys.exit()
         self.rect = self.image.get_rect()
 
 
