@@ -9,15 +9,20 @@ from sound import sound
 from menu import end_menu
 
 # путь csv уровней
-level_0 = {'surface': './levels/level0/level0_surface.csv',
+level_0 = {'fon': './data/fon/first_level_fon.jpg',
+           'surface': './levels/level0/level0_surface.csv',
            'cup': './levels/level0/level0_cup.csv',
            'bochki': './levels/level0/level0_bochki.csv',
+           'player': './levels/level0/level0_player.csv',
            'enemy': './levels/level0/level0_enemy.csv'}
-level_1 = {'surface': './levels/level1/level1_surface.csv',
+level_1 = {'fon': './data/fon/second_level_fon.png',
+           'surface': './levels/level1/level1_surface.csv',
            'cup': './levels/level1/level1_cup.csv',
            'bochki': './levels/level1/level1_bochki.csv',
+           'player': './levels/level1/level1_player.csv',
            'enemy': './levels/level1/level1_enemy.csv'}
 level_2 = {'surface': './levels/level2/level2_surface.csv'}
+
 
 archers = []  # список стрелков
 enemies = pygame.sprite.Group()
@@ -162,9 +167,14 @@ class Fon:
 
 # класс уровня
 class Level:
-    def __init__(self, level_data, surface):
+    def __init__(self, level_data, surface, main_charaster):
         self.display_surface = surface
         self.screen_shift = 0
+
+        player_layout = import_csv(level_data['player'])
+        self.player = pygame.sprite.GroupSingle()
+        self.finish = pygame.sprite.GroupSingle()
+        self.player_setup(player_layout, main_charaster)
 
         self.fon = Fon()
 
@@ -187,6 +197,19 @@ class Level:
         self.enemy_sprites = self.create_tile_group(
             enemy_layout, 'enemy'
         )
+
+    # функция создания игрока из класса MainСharaster и точки выхода из уровня
+    def player_setup(self, layout, main_charaster):
+        for r_index, row in enumerate(layout):
+            for c_index, znach in enumerate(row):
+                x = c_index * tile_size
+                y = r_index * tile_size
+                if znach == '0':
+                    self.player.add(main_charaster)
+                if znach == '1':
+                    finish_surface = load_image('./data/startfinish/finish.png', -1)
+                    sprite = SurfaceTile(tile_size, x, y, finish_surface)
+                    self.finish.add(sprite)
 
     # функция создания уровня из tile
     def create_tile_group(self, lay, type):
@@ -654,9 +677,11 @@ class GroundEnemy(Enemy):
         self.rect = self.rect.move(1 * self.direction, 0)
 
 
-level = Level(level_0, screen)
-
 main_character = MainCharacter(2, 400)
+level = Level(level_0, screen, main_character)
+#level = Level(level_0, screen)
+
+#main_character = MainCharacter(2, 400)
 ar = Archer(100, 250)
 enemies.add(ar)
 archers.append(ar)

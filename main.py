@@ -34,14 +34,6 @@ def start_level():
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
 
-        # обработчик камеры
-        #   if keys[pygame.K_RIGHT]:
-        #      level.sdvig_x(1)
-        #  elif keys[pygame.K_LEFT]:
-        #      level.sdvig_x(-1)
-        #  else:
-        #      level.sdvig_x(0)
-
         # вызов метода обновления экрана
         level.create()
 
