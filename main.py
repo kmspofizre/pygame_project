@@ -24,7 +24,12 @@ level_1 = {'fon': './data/fon/second_level_fon.png',
            'bochki': './levels/level1/level1_bochki.csv',
            'player': './levels/level1/level1_player.csv',
            'enemy': './levels/level1/level1_enemy.csv'}
-level_2 = {'surface': './levels/level2/level2_surface.csv'}
+level_2 = {'fon': './data/fon/second_level_fon.png',
+           'surface': './levels/level2/level2_surface.csv',
+           'cup': './levels/level2/level2_cup.csv',
+           'bochki': './levels/level2/level2_bochki.csv',
+           'player': './levels/level2/level2_player.csv',
+           'enemy': './levels/level2/level2_enemy.csv'}
 
 archers = []  # список стрелков
 enemies = pygame.sprite.Group()
@@ -777,27 +782,15 @@ if __name__ == '__main__':
     enemies.add(ar)
     archers.append(ar)
 
+    spisok_level = [level_0, level_1, level_2]
+
     run = True
     while run:
         menu.menu()
-        if level_change == 0:
-           # enemies.clear(screen,screen)
-           # archers.clear()
-           # ar = Archer(100, 250)
-           # enemies.add(ar)
-           # archers.append(ar)
+        for x in spisok_level:
             main_character = MainCharacter(2, 400)
-            level = Level(level_0, screen, main_character)
-        elif level_change == 1:
-            #enemies.clear(screen,screen)
-            #archers.clear()
-            #ar = Archer(100, 250)
-            #enemies.add(ar)
-            #archers.append(ar)
-            main_character = MainCharacter(2, 400)
-            level = Level(level_1, screen, main_character)
-        start_level()
-        level_change = 1
+            level = Level(x, screen, main_character)
+            start_level()
 
 pygame.quit()
 
