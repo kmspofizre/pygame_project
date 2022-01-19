@@ -35,9 +35,9 @@ def start_level():
                 cur.rect = event.pos
 
         # вызов метода обновления экрана
-        level.create()
+        level.update()
 
-        main_character.update()
+        #main_character.update()
         # enemies.update(0)
         shurikens.update()
         bullets.update()
@@ -45,7 +45,7 @@ def start_level():
         for archer in archers:
             archer.update()
         enemies.draw(screen)
-        main_character_group.draw(game_settings.screen)
+        #main_character_group.draw(game_settings.screen)
         game_settings.clock1.tick(game_settings.fps)
         # pygame.display.flip()
         # обработчик курсора

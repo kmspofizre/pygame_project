@@ -244,16 +244,20 @@ class Level:
         return sprite_group
 
     # функция сдвига tile-ов в зависимости от движения игрока (камера)
-    def sdvig_x(self, direction_x):
-        if direction_x < 0:
-            self.screen_shift = 5
-        elif direction_x > 0:
-            self.screen_shift = -5
+    def sdvig_x(self):
+        player = self.player.sprite
+        player_x = player.rect.centerx
+        direction_x = player.direction.x
+
+        if player_x < screen_width / 2 and direction_x < 0:
+             self.screen_shift = 10
+        elif player_x > screen_width - (screen_width / 2) and direction_x > 0:
+            self.screen_shift = -10
         else:
             self.screen_shift = 0
 
     # функция обновления tile уровня на экране
-    def create(self):
+    def update(self):
         self.fon.draw(self.display_surface)
 
         self.surface_sprites.update(self.screen_shift)
@@ -267,6 +271,12 @@ class Level:
 
         self.enemy_sprites.update(self.screen_shift)
         self.enemy_sprites.draw(self.display_surface)
+
+        self.player.update()
+        self.sdvig_x()
+        self.player.draw(self.display_surface)
+        self.finish.update(self.screen_shift)
+        self.finish.draw(self.display_surface)
 
 
 class Surface:
@@ -316,9 +326,14 @@ class MainCharacter(pygame.sprite.Sprite):
             5, 2, self.x, self.y
         )
 
+       # self.rect = self.rect.move(x, y)
+
         self.items = dict()
         self.coins = 0
         self.hp = 30
+
+        # вектор движения героя
+        self.direction = pygame.math.Vector2(0, 0)
 
         # self.rect = pygame.Rect(2, 350, 20, 20)
         self.face = True
@@ -354,6 +369,9 @@ class MainCharacter(pygame.sprite.Sprite):
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
             self.image = self.frames[self.cur_frame]
 
+        # движение игрока когда не двигается камера
+        #self.rect.x += self.direction.x
+
         if pygame.sprite.spritecollideany(self, level.surface_sprites) \
                 and self.check_ground():
             self.rising_timer = 0
@@ -383,13 +401,20 @@ class MainCharacter(pygame.sprite.Sprite):
                 self.rising_timer -= 5  # rising_timer задается в функции jump
                 if self.rising_timer == 0:
                     self.rising = False
+
         if self.moving:
             if self.right == self.left:
+                # изменение направления движения героя
+                self.direction.x = 0
+
                 if not self.jumping:
                     self.frames = self.cut_sheet(load_image("data/hero/lukang/idle_5_1.png"), 5, 1, self.rect.x,
                                                  self.rect.y)
                     self.standing = True
             elif self.left:
+                # изменение направления движения героя
+                self.direction.x = -4
+
                 self.frames = self.cut_sheet(
                     load_image("data/hero/lukang/move_5_2_left.png"), 5, 2, self.rect.x,
                     self.rect.y
@@ -398,11 +423,18 @@ class MainCharacter(pygame.sprite.Sprite):
                 if not self.jumping:
                     self.standing = False
             elif self.right:
+                # изменение направления движения героя
+                self.direction.x = 4
+
                 self.frames = self.cut_sheet(load_image("data/hero/lukang/move_5_2.png"), 5, 2, self.rect.x,
                                              self.rect.y)
                 self.rect = self.rect.move(3, 0)  # анимация движения вправо
                 if not self.jumping:
                     self.standing = False
+            else:
+                # изменение направления движения героя
+                self.direction.x = 0
+
             if not self.att:  # проверка перезарядки атаки, если прошло больше 3 секунд с последней атаки
                 now = pygame.time.get_ticks()  # атака перезаряжается
                 if now - self.last >= 3000:
