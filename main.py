@@ -55,6 +55,7 @@ def start_level():
 
 
 if __name__ == '__main__':
+    level_change = 0
     pygame.init()
 
     pygame.time.set_timer(game_settings.SHOOTING_EVENT, 3000)
@@ -74,4 +75,5 @@ if __name__ == '__main__':
         # enemies_sp = [we, ar]  # список врагов
 
         start_level()
+
 pygame.quit()

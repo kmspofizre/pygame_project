@@ -23,7 +23,6 @@ level_1 = {'fon': './data/fon/second_level_fon.png',
            'enemy': './levels/level1/level1_enemy.csv'}
 level_2 = {'surface': './levels/level2/level2_surface.csv'}
 
-
 archers = []  # список стрелков
 enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
@@ -701,11 +700,16 @@ class GroundEnemy(Enemy):
         self.rect = self.rect.move(1 * self.direction, 0)
 
 
-main_character = MainCharacter(2, 400)
-level = Level(level_0, screen, main_character)
-#level = Level(level_0, screen)
+level_change = 0
 
-#main_character = MainCharacter(2, 400)
+if level_change == 0:
+    main_character = MainCharacter(2, 400)
+    level = Level(level_0, screen, main_character)
+elif level_change == 1:
+    main_character = MainCharacter(2, 400)
+    level = Level(level_0, screen, main_character)
+
+
 ar = Archer(100, 250)
 enemies.add(ar)
 archers.append(ar)
