@@ -24,7 +24,7 @@ level_1 = {'fon': './data/fon/second_level_fon.png',
            'bochki': './levels/level1/level1_bochki.csv',
            'player': './levels/level1/level1_player.csv',
            'enemy': './levels/level1/level1_enemy.csv'}
-level_2 = {'fon': './data/fon/second_level_fon.png',
+level_2 = {'fon': './data/fon/level_fon_3.jpg',
            'surface': './levels/level2/level2_surface.csv',
            'cup': './levels/level2/level2_cup.csv',
            'bochki': './levels/level2/level2_bochki.csv',
@@ -36,6 +36,7 @@ enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
 main_character_group = pygame.sprite.Group()
+
 
 def game_over():
     sound.play("game_over", 1, 0.1)
@@ -140,7 +141,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
 
 
 # класс фона
-class Fon():
+class Fon:
     def __init__(self, fon):
        self.level_fon = pygame.image.load(fon).convert()
        self.level_fon = pygame.transform.scale(self.level_fon, (screen_width, screen_height))
@@ -265,6 +266,8 @@ class Level:
 
         self.enemy_sprites.update(self.screen_shift)
         self.enemy_sprites.draw(self.display_surface)
+
+        enemies.update(self.screen_shift)
 
         self.player.update()
         self.sdvig_x()
@@ -535,6 +538,9 @@ class Enemy(pygame.sprite.Sprite):
             if self in archers:
                 archers.remove(self)
 
+    def update(self, shift):
+        self.rect.x += shift
+
 
 class Archer(Enemy):
     def __init__(self, x, y):
@@ -700,6 +706,9 @@ class GroundEnemy(Enemy):
         if pygame.sprite.spritecollideany(self, shurikens):
             self.get_damage()
 
+    def update_sdvig_x(self, shift):
+        self.rect.x += shift
+
     def walking(self):
         # цикличное хождение влево-вправо от стартовой позиции до стартовая позиция + walking_range
         if self.rect.x + 1 > self.start_x + self.walking_range:
@@ -787,9 +796,9 @@ if __name__ == '__main__':
     run = True
     while run:
         menu.menu()
-        for x in spisok_level:
+        for number in spisok_level:
             main_character = MainCharacter(2, 400)
-            level = Level(x, screen, main_character)
+            level = Level(number, screen, main_character)
             start_level()
 
 pygame.quit()
