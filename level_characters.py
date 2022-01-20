@@ -306,6 +306,8 @@ class MainCharacter(pygame.sprite.Sprite):
         self.right = False
         self.reloading = False
         self.standing = True  # флаг неподвижности
+        self.can_move_r = True
+        self.can_move_l = True
         self.attack_timer = 0
         self.last = 0
         self.rising_timer = 0
@@ -338,6 +340,11 @@ class MainCharacter(pygame.sprite.Sprite):
             self.moving = True  # если находится на земле, то может прыгать
             self.jumping = False  # self.moving - флаг нахождения на платформе
             self.rising = False
+            self.can_move_l, self.can_move_r = self.check_sides()
+            if not self.can_move_l:
+                self.left = False
+            if not self.can_move_r:
+                self.right = False
         else:
             self.moving = False
         if pygame.sprite.spritecollide(self, level.cup_sprites, True):
@@ -396,9 +403,9 @@ class MainCharacter(pygame.sprite.Sprite):
 
     def walking(self, direction):
         # определение направления движения
-        if direction == pygame.K_LEFT:
+        if direction == pygame.K_LEFT and self.can_move_l:
             self.left = True
-        elif direction == pygame.K_RIGHT:
+        elif direction == pygame.K_RIGHT and self.can_move_r:
             self.right = True
 
     def stop_walking(self, direction):
@@ -444,6 +451,16 @@ class MainCharacter(pygame.sprite.Sprite):
                     and elem.rect.top == self.rect.bottom - 1:
                 return True
         return False
+
+    def check_sides(self):
+        can_r = can_l = True
+        for elem in level.surface_sprites:
+            if pygame.sprite.spritecollideany(elem, main_character_group):
+                if elem.rect.right - 1 == self.rect.left:
+                    can_l = False
+                if elem.rect.left == self.rect.right - 1:
+                    can_r = False
+                return can_l, can_r
 
 
 class Platform(pygame.sprite.Sprite):
