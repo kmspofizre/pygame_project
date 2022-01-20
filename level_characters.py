@@ -391,6 +391,8 @@ class MainCharacter(pygame.sprite.Sprite):
                 now = pygame.time.get_ticks()  # атака перезаряжается
                 if now - self.last >= 4000:
                     self.reloading = False
+        if self.rect.top > screen_height:
+            self.hp = 0
 
     def walking(self, direction):
         # определение направления движения
@@ -641,6 +643,7 @@ class GroundEnemy(Enemy):
                     self.attack = True  # то можно атаковать снова
         if pygame.sprite.spritecollideany(self, shurikens):
             self.get_damage()
+
 
     def walking(self):
         # цикличное хождение влево-вправо от стартовой позиции до стартовая позиция + walking_range
