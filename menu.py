@@ -1,9 +1,6 @@
 import random
 from datetime import datetime
-
 import os
-from time import sleep
-
 from game_settings import *
 from cursor import cursor, cur
 from sound import sound
@@ -11,6 +8,7 @@ from sound import sound
 all_sprites = pygame.sprite.Group()
 
 
+#функция загрузка спрайтов
 def load_image(name, color_key=None):
     fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
@@ -24,7 +22,7 @@ def load_image(name, color_key=None):
         image.set_colorkey(color_key)
     return image
 
-
+# функция создания частиц
 def create_particles(position):
     # количество создаваемых частиц
     particle_count = 20
@@ -33,7 +31,7 @@ def create_particles(position):
     for _ in range(particle_count):
         Particle(position, random.choice(numbers), random.choice(numbers))
 
-
+# класс частиц
 class Particle(pygame.sprite.Sprite):
     # сгенерируем частицы разного размера
     try:
@@ -41,6 +39,7 @@ class Particle(pygame.sprite.Sprite):
     except:
         print('Не найден графический файл звёзд !')
         sys.exit()
+
     for scale in (5, 10, 20):
         fire.append(pygame.transform.scale(fire[0], (scale, scale)))
 
@@ -68,23 +67,40 @@ class Particle(pygame.sprite.Sprite):
         if not self.rect.colliderect(screen_rect):
             self.kill()
 
-
+# класс меню
 class Menu:
     def __init__(self, menu_item):
         self.menu_item = menu_item
 
     def render(self, screen, font, num_menu_item):
-        font = pygame.font.Font('fonts/Asessorc.otf', 30)
-        screen.blit(font.render('Приключение Лю Кэнга во Владимире', 1, 'red'), (350, 100))
+        try:
+            font = pygame.font.Font('fonts/Maestroc.otf', 60)
+        except:
+            print('Не найден файл шрифта !')
+            sys.exit()
+
+        screen.blit(font.render('Liu Kang Adventures in city Vladimir', 1, 'red'), (300, 100))
+
+        try:
+            font = pygame.font.Font('fonts/Asessorc.otf', 30)
+        except:
+            print('Не найден файл шрифта !')
+            sys.exit()
         screen.blit(font.render('Copyright 2021-2022', 1, 'green'), (450, 700))
 
-        font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
+        try:
+            font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
+        except:
+            print('Не найден файл шрифта !')
+            sys.exit()
+
         for i in self.menu_item:
             if num_menu_item == i[5]:
                 screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1]))
             else:
                 screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1]))
 
+    #функция создания меню
     def menu(self):
         sound.play('Lymez', 10, 0.3)
         active_menu = True
@@ -127,7 +143,7 @@ class Menu:
                         sound.stop('Lymez')
                         active_menu = False
                     if menu_item == 1:
-                        print('rules')
+                        rules()
                     if menu_item == 2:
                         score()
                     if menu_item == 3:
@@ -144,10 +160,10 @@ class Menu:
             all_sprites.update()
             clock1.tick(fps)
 
-
             pygame.display.update()
 
 
+# класс экрана DIED
 class EndMenu:
     def __init__(self, menu_items):
         self.menu_items = menu_items
@@ -217,11 +233,53 @@ class EndMenu:
             pygame.display.update()
 
 
-def score():
-    screen.fill(surface_color)
-
+# функция отображения экрана правил
+def rules():
     try:
-        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+        font = pygame.font.Font('fonts/KhakiStd1.otf', 40)
+    except:
+        print('Не найден файл шрифта !')
+        sys.exit()
+
+    active_menu = True
+    while active_menu:
+        screen.fill((0, 100, 200))
+
+        screen.blit(font.render('Hello! This rules of game:', 3, 'red'), (50, 100))
+        screen.blit(font.render('', 3, 'red'), (50, 150))
+        screen.blit(font.render('Control Hero: W,A,S,D', 1, 'red'), (50, 200))
+        screen.blit(font.render('Exit from menu : ESCAPE', 1, 'red'), (50, 250))
+        screen.blit(font.render('It is impossible to close the game during the passage of the level,', 1, 'red'), (50, 300))
+        screen.blit(font.render('it is necessary to find the finish', 1, 'red'), (50, 350))
+        screen.blit(font.render('', 3, 'red'), (50, 400))
+        screen.blit(font.render('Thanks !!!', 1, 'red'), (50, 450))
+        screen.blit(font.render('', 3, 'red'), (50, 500))
+        screen.blit(font.render('When you move the cursor behind the menu screen, stars are made', 1, 'red'), (50, 550))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
+                active_menu = False
+            if event.type == pygame.MOUSEMOTION:
+                cur.rect = event.pos
+
+        if pygame.mouse.get_focused():
+            cursor.draw(screen)
+
+        else:
+            position = (random.randint(0, screen_width), random.randint(0, screen_height))
+            create_particles(position)
+
+        all_sprites.draw(screen)
+        all_sprites.update()
+        clock1.tick(fps)
+
+        pygame.display.update()
+
+
+# функция отображения экрана лучших игр из БД
+def score():
+    try:
+        font = pygame.font.Font('fonts/Agitpropc.otf', 30)
     except:
         print('Не найден файл шрифта !')
         sys.exit()
@@ -232,7 +290,7 @@ def score():
 
     active_menu = True
     while active_menu:
-        screen.fill(surface_color)
+        screen.fill((0, 100, 200))
         i = 0
         pygame.draw.line(screen, pygame.Color('white'), (64, 64 * i + 64), (screen_width - 64, 64 * i + 64), 5)
 
@@ -273,15 +331,13 @@ def score():
         if pygame.mouse.get_focused():
             cursor.draw(screen)
 
-       # pygame.mouse.set_visible(True)
-
         all_sprites.draw(screen)
         all_sprites.update()
         clock1.tick(fps)
 
         pygame.display.update()
 
-
+# функция отображения результатов прохождения уровня и записи их в БД
 def result_level(coins, lifes, enemy_kill):
     coin = coins
     life = lifes
@@ -304,23 +360,22 @@ def result_level(coins, lifes, enemy_kill):
     connection.commit()
     result.close()
 
-
     sound.play('game3', 10, 0.3)
     try:
-        font = pygame.font.Font('fonts/Asessorc.otf', 30)
+        font = pygame.font.Font('fonts/Asessorc.otf', 40)
     except:
         print('Не найден файл шрифта !')
         sys.exit()
 
     active_result_level = True
     while active_result_level:
-        screen.fill(surface_color)
+        screen.fill((0, 100, 200))
 
-        screen.blit(font.render('Результаты прохождения уровня', 3, 'red'), (400, 100))
-        screen.blit(font.render(f'Вы заработали {score} очков', 1, 'yellow'), (400, 200))
-        screen.blit(font.render(f'Количество собранных монет: {coin}', 1, 'red'), (400, 300))
-        screen.blit(font.render('Количество убитых врагов: 0', 1, 'blue'), (400, 400))
-        screen.blit(font.render(f'Количество оставшегося здоровья: {life}', 1, 'yellow'), (400, 500))
+        screen.blit(font.render('Результаты прохождения уровня:', 3, 'yellow'), (300, 100))
+        screen.blit(font.render(f'Вы заработали {score} очков', 1, 'yellow'), (300, 200))
+        screen.blit(font.render(f'Количество собранных монет: {coin}', 1, 'yellow'), (300, 300))
+        screen.blit(font.render('Количество убитых врагов: 0', 1, 'yellow'), (300, 400))
+        screen.blit(font.render(f'Количество оставшегося здоровья: {life}', 1, 'yellow'), (300, 500))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
@@ -334,8 +389,6 @@ def result_level(coins, lifes, enemy_kill):
 
         if pygame.mouse.get_focused():
             cursor.draw(screen)
-
-       # pygame.mouse.set_visible(True)
 
         all_sprites.draw(screen)
         all_sprites.update()

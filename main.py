@@ -32,12 +32,15 @@ level_2 = {'fon': './data/fon/level_fon_3.jpg',
            'enemy': './levels/level2/level2_enemy.csv'}
 
 archers = []  # список стрелков
+
+# группы отображаемых спрайтов
 enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
 main_character_group = pygame.sprite.Group()
 
 
+# функция окончания игры
 def game_over():
     sound.play("game_over", 1, 0.1)
     main_character.hp = 1
@@ -73,6 +76,7 @@ def import_cut_png(path):
     return cut_tiles
 
 
+#функция загрузка спрайтов
 def load_image(name, color_key=None):
     fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
@@ -207,6 +211,16 @@ class Level:
                     x = c_index * tile_size
                     y = r_index * tile_size
 
+                   # if type == 'surface':
+                   #     surface_tile_list = import_cut_png('./data/surface/surface.png')
+                   #     tile_surface = surface_tile_list[int(znach)]
+                   #     sprite = SurfaceTile(tile_size, x, y, tile_surface)
+
+                   # if type == 'bochki':
+                   #     surface_tile_list = import_cut_png('./data/bochki/bochka1.png')
+                   #     tile_surface = surface_tile_list[int(znach)]
+                   #     sprite = SurfaceTile(tile_size, x, y, tile_surface)
+
                     if type == 'surface':
                         sprite = Surface(znach, x, y).return_sprite()
 
@@ -218,6 +232,14 @@ class Level:
                         # surface_tile_list = import_cut_png('./data/cup/chirik.png')
                         # tile_surface = surface_tile_list[int(znach)]
                         # sprite = SurfaceTile(tile_size, x, y, tile_surface)
+
+                    #if type == 'enemy':
+                    #    if znach == '0':
+                    #        surface_tile_list = import_cut_png('./data/enemy/enemy.gif')
+                    #        tile_surface = surface_tile_list[0]
+                    #        sprite = GroundEnemy(x, y, 40, tile_surface)
+                    #    if znach == '1':
+                    #        continue
 
                     if type == 'enemy':
                         if znach == '0':
@@ -242,12 +264,13 @@ class Level:
         else:
             self.screen_shift = 0
 
+
+    #функция достижения точки финиша героем
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
             #удаление лишних врагов с экрана
             for sprite in self.enemy_sprites:
-               # if isinstance(sprite, GroundEnemy):
-               sprite.kill()
+                sprite.kill()
             sound.stop('game4')
             result_level(main_character.coins, main_character.hp, main_character.enemy_kill)
             global running
@@ -315,7 +338,7 @@ class Coin(AnimatedSprite):
 
 '''ПЕРСОНАЖИ'''
 
-
+# главный персонаж
 class MainCharacter(pygame.sprite.Sprite):
     def __init__(self, x, y):
         self.x = x
@@ -735,6 +758,7 @@ class GroundEnemy(Enemy):
         self.rect = self.rect.move(1 * self.direction, 0)
 
 
+#запуск уровня
 def start_level():
     sound.play('game4', 10, 0.3)
 
@@ -783,38 +807,37 @@ def start_level():
 
 
 if __name__ == '__main__':
-    level_change = 0
-
     pygame.init()
 
     pygame.time.set_timer(game_settings.SHOOTING_EVENT, 3000)
 
-    # инициализация звука и музыки
-
     pygame.display.set_caption('Приключение Лю Кэнга во Владимире')
-    # инициализация курсора
+
     pygame.mouse.set_visible(False)
 
     #ar = Archer(100, 250)
    # enemies.add(ar)
    # archers.append(ar)
 
+    # список уровней игры
     spisok_level = [level_0, level_1, level_2]
 
     run = True
     while run:
         menu.menu()
         for number in spisok_level:
+            # принудительная инициализация гопника с бутылкой и Лю Кэнга
             ar = Archer(100, 250)
             enemies.add(ar)
             archers.append(ar)
             main_character = MainCharacter(2, 400)
 
+            #создание уровня из класса и его запуск
             level = Level(number, screen, main_character)
             start_level()
 
+            # принудительное удаление гопника с бутылкой
             ar.kill()
             archers.clear()
-
 
 pygame.quit()
