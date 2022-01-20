@@ -102,6 +102,7 @@ class Menu:
 
     #функция создания меню
     def menu(self):
+        sound.stop("game_over")
         sound.play('Lymez', 10, 0.3)
         active_menu = True
         pygame.key.set_repeat(0, 0)
@@ -247,7 +248,7 @@ def rules():
 
         screen.blit(font.render('Hello! This rules of game:', 3, 'red'), (50, 100))
         screen.blit(font.render('', 3, 'red'), (50, 150))
-        screen.blit(font.render('Control Hero: W,A,S,D', 1, 'red'), (50, 200))
+        screen.blit(font.render('Control Hero: W,A,S,D,Space', 1, 'red'), (50, 200))
         screen.blit(font.render('Exit from menu : ESCAPE', 1, 'red'), (50, 250))
         screen.blit(font.render('It is impossible to close the game during the passage of the level,', 1, 'red'), (50, 300))
         screen.blit(font.render('it is necessary to find the finish', 1, 'red'), (50, 350))
@@ -398,7 +399,7 @@ def result_level(coins, lifes, enemy_kill):
 
 
 # создание меню
-menu_items = [(510, 210, u'Game', 'yellow', 'red', 0),
+menu_items = [(510, 210, u'Game', 'yellow', 'blue', 0),
               (520, 280, u'Rules', 'yellow', 'green', 1),
               (530, 350, u'Best', 'yellow', 'brown', 2),
               (530, 420, u'Quit', 'yellow', 'black', 3)]
