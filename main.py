@@ -42,6 +42,7 @@ def start_level():
     sound.play('game4', 10, 0.3)
 
     draw_inventory = False
+    global running
     running = True
     while running:
         for event in pygame.event.get():
@@ -925,7 +926,7 @@ if __name__ == '__main__':
     pygame.display.set_caption('Приключение Лю Кэнга во Владимире')
     pygame.mouse.set_visible(False)
 
-    spisok_level = [level_1, level_2]
+    spisok_level = [level_0, level_1, level_2]
 
     run = True
     while run:

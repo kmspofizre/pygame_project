@@ -187,7 +187,7 @@ def result_level(coins, lifes, enemy_kill):
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP
                                              and event.key == pygame.K_ESCAPE):
                 sound.stop('game3')
-                sys.exit()
+                active_result_level = False
             if event.type == SHOOTING_EVENT:
                 position = (
                     random.randint(0, screen_width),
