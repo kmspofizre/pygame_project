@@ -3,25 +3,49 @@ import sys
 
 import pygame
 
-from game_settings import screen
+from game_settings import screen, screen_width
 
 pygame.init()
 
 
-def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+def load_image(name, color_key=None):
+    fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
-        sys.exit()
+        raise FileNotFoundError(f"{fullname}")
     image = pygame.image.load(fullname)
-    if colorkey is not None:
+    if color_key is not None:
         image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
-    else:
-        image = image.convert_alpha()
+        if color_key == -1:
+            color_key = image.get_at((0, 0))
+        image.set_colorkey(color_key)
     return image
+
+
+def draw_interface(hp):
+    interface = pygame.sprite.Group()
+    for i in range(hp):
+        icon = pygame.sprite.Sprite(interface)
+        try:
+            icon.image = pygame.transform.scale(
+                load_image("data/backpack.png"), (64, 64)
+            )
+        except Exception:
+            print("не найдено изображение инвентаря")
+        icon.rect = icon.image.get_rect()
+        icon.rect.x = 10
+        icon.rect.y = 10
+
+        hearts = pygame.sprite.Sprite(interface)
+        try:
+            hearts.image = pygame.transform.scale(
+                load_image('data/hurt_1_96_96.png'), (64, 64)
+            )
+        except Exception:
+            print("не найдено изображение сердца")
+        hearts.rect = hearts.image.get_rect()
+        hearts.rect.x = screen_width - 96 - (85 * i)
+    interface.draw(screen)
 
 
 class Resource:
@@ -34,20 +58,10 @@ class Resource:
 
 class Inventory:
     def __init__(self):
-        icon = pygame.sprite.Sprite(interface)
-        try:
-            icon.image = pygame.transform.scale(
-                load_image("backpack.png"), (64, 64)
-            )
-        except Exception:
-            print("не найдено изображение инвентаря")
-        icon.rect = icon.image.get_rect()
-        icon.rect.x = 10
-        icon.rect.y = 10
         try:
             self.recources = {
                 "coin": Resource(
-                    "Монетка", "coin_64_64.png",
+                    "Монетка", "data/coin_64_64.png",
                     "Золотая монетка. Используется для покупки предметов "
                     "и подсчёта очков"),
             }
@@ -65,6 +79,7 @@ class Inventory:
     def add_item(self, name):
         try:
             self.recources[name].amount += 1
+            print(self.recources[name].amount)
             self.update_inventory()
         except KeyError:
             print("error")
@@ -88,7 +103,9 @@ class Inventory:
         for cell in self.inventory_panel:
             pygame.draw.rect(screen, (200, 215, 227), (x, y, side, side))
             if cell is not None:
-                screen.blit(cell.image, (x + 15, x + 5))
+                font = pygame.font.SysFont("Times New Roman", 14)
+                screen.blit(cell.image, (x + 10, y + 5))
+                screen.blit(font.render(f"{cell.amount}", 1, "black"), (x + 65, y + 57))
             x += step
 
             if x == 430:
@@ -96,5 +113,4 @@ class Inventory:
                 y += step
 
 
-interface = pygame.sprite.Group()
 inventory = Inventory()

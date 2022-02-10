@@ -2,11 +2,14 @@ import math
 import os
 import csv
 
+import pygame.time
+
+import game_settings
 from game_settings import *
 from menu import menu, end_menu, result_level
 from cursor import cursor, cur
 from sound import sound
-from inventory import inventory, interface
+from interface import inventory, draw_interface
 
 # путь csv уровней
 level_0 = {'fon': './data/fon/first_level_fon.jpg',
@@ -50,7 +53,13 @@ def start_level():
                     main_character.jump()
                 main_character.walking(event.key)
                 if event.key == pygame.K_f:
-                    main_character.attack()
+                    if main_character.left or main_character.right or\
+                            main_character.rising or main_character.jumping:
+                        main_character.is_attacking = False
+                    else:
+                        if pygame.time.get_ticks() - game_settings.time >= 1500:
+                            main_character.attack()
+                            game_settings.time = pygame.time.get_ticks()
                 if event.key == pygame.K_1:
                     inventory.add_item("coin")
             if event.type == pygame.KEYUP:
@@ -79,7 +88,7 @@ def start_level():
             archer.update()
         enemies.draw(screen)
         main_character_group.draw(screen)
-        interface.draw(screen)
+        draw_interface(main_character.hp)
         if draw_inventory:
             inventory.draw_inventory()
         clock1.tick(fps)
@@ -239,6 +248,7 @@ class Level:
         )
 
     # функция создания игрока из класса MainСharacter и точки выхода из уровня
+    # TODO: Сделать только создание финиша
     def player_setup(self, layout, main_charaster):
         for r_index, row in enumerate(layout):
             for c_index, znach in enumerate(row):
@@ -297,6 +307,52 @@ class Level:
         else:
             self.screen_shift = 0
 
+    def check_camera(self):
+        right_rect = pygame.rect.Rect(game_settings.screen_width, 0, 1, game_settings.screen_height)
+        left_rect = pygame.rect.Rect(0, 0, 1, game_settings.screen_height)
+
+        if right_rect.colliderect(main_character.rect):
+            for elem in bullets:
+                elem.rect.x -= 500
+            for elem in enemies:
+                if elem.__class__ == GroundEnemy:
+                    elem.start_x -= 500
+            self.fon.draw(self.display_surface)
+            self.surface_sprites.update(-500)
+            self.bochki_sprites.update(-500)
+            self.cup_sprites.update(-500)
+            self.enemy_sprites.update(-500)
+
+            self.surface_sprites.draw(self.display_surface)
+            self.bochki_sprites.draw(self.display_surface)
+            self.cup_sprites.draw(self.display_surface)
+            self.player.draw(self.display_surface)
+
+            main_character.rect.x -= 500
+            ar.update_sdvig_x(-500)
+            self.finish.update(-500)
+
+        if left_rect.colliderect(main_character.rect):
+            for elem in bullets:
+                elem.rect.x += 500
+            for elem in enemies:
+                if elem.__class__ == GroundEnemy:
+                    elem.start_x += 500
+            self.fon.draw(self.display_surface)
+            self.surface_sprites.update(500)
+            self.bochki_sprites.update(500)
+            self.cup_sprites.update(500)
+            self.enemy_sprites.update(500)
+
+            self.surface_sprites.draw(self.display_surface)
+            self.bochki_sprites.draw(self.display_surface)
+            self.cup_sprites.draw(self.display_surface)
+            self.player.draw(self.display_surface)
+
+            main_character.rect.x += 500
+            ar.update_sdvig_x(500)
+            self.finish.update(500)
+
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
             # удаление лишних врагов с экрана
@@ -331,7 +387,8 @@ class Level:
         ar.update_sdvig_x(self.screen_shift)
 
         self.player.update()
-        self.sdvig_x()
+        #self.sdvig_x()
+        self.check_camera()
         self.player.draw(self.display_surface)
         self.finish.update(self.screen_shift)
         self.finish.draw(self.display_surface)
@@ -394,7 +451,7 @@ class MainCharacter(pygame.sprite.Sprite):
 
         self.items = dict()
         self.coins = 0
-        self.hp = 100
+        self.hp = 10
         self.enemy_kill = 0
 
         # вектор движения героя
@@ -408,13 +465,12 @@ class MainCharacter(pygame.sprite.Sprite):
         self.left = False
         self.right = False
         self.reloading = False
-        self.can_move_r = True
-        self.can_move_l = True
         self.standing = True  # флаг неподвижности
         self.attack_timer = 0
         self.last = 0
         self.rising_timer = 0
         self.iteration_counter = 0
+        self.shuriken = 5
 
     def cut_sheet(self, sheet, columns, rows, x, y):
         self.rect = pygame.Rect(
@@ -452,14 +508,12 @@ class MainCharacter(pygame.sprite.Sprite):
                 )
             except Exception:
                 print("отсутствует анимация атаки персонажа")
-            return
+            for elem in enemies:
+                elem.is_under_attack()
+                print(elem.hp)
 
         # проверка перезарядки атаки
         # если прошло больше 3 секунд с последней атаки
-        if self.reloading:
-            now = pygame.time.get_ticks()  # атака перезаряжается
-            if now - self.last >= 4000:
-                self.reloading = False
 
         if pygame.sprite.spritecollideany(self, level.surface_sprites) \
                 and self.check_ground():
@@ -467,11 +521,6 @@ class MainCharacter(pygame.sprite.Sprite):
             self.moving = True  # если находится на земле, то может прыгать
             self.jumping = False  # self.moving - флаг нахождения на платформе
             self.rising = False
-            self.can_move_l, self.can_move_r = self.check_sides()
-            if not self.can_move_l:
-                self.left = False
-            if not self.can_move_r:
-                self.right = False
         else:
             self.moving = False
         if pygame.sprite.spritecollide(self, level.cup_sprites, True):
@@ -487,7 +536,7 @@ class MainCharacter(pygame.sprite.Sprite):
                 print("отсутствует анимация прыжка персонажа")
             if self.right:
                 self.direction.x = 1
-                self.rect = self.rect.move(1, 0)
+                self.rect = self.rect.move(2, 0)
             if self.left:
                 try:
                     self.frames = self.cut_sheet(
@@ -497,7 +546,7 @@ class MainCharacter(pygame.sprite.Sprite):
                 except Exception:
                     print("отсутствует анимация прыжка персонажа")
                 self.direction.x = -1
-                self.rect = self.rect.move(-1, 0)
+                self.rect = self.rect.move(-2, 0)
             if not self.rising:  # если не взлетает
                 self.rect = self.rect.move(0, 1)  # падает
                 self.moving = False  # анимация падения (или продолжение анимации прыжка)
@@ -532,7 +581,7 @@ class MainCharacter(pygame.sprite.Sprite):
                     )
                 except Exception:
                     print("отсутствует анимация движения персонажа")
-                self.rect = self.rect.move(-1, 0)  # анимация движения влево
+                self.rect = self.rect.move(-2, 0)  # анимация движения влево
                 if not self.jumping:
                     self.standing = False
             elif self.right:
@@ -545,7 +594,7 @@ class MainCharacter(pygame.sprite.Sprite):
                         5, 2, self.rect.x, self.rect.y)
                 except Exception:
                     print("отсутствует анимация движения персонажа")
-                self.rect = self.rect.move(1, 0)  # анимация движения вправо
+                self.rect = self.rect.move(2, 0)  # анимация движения вправо
                 if not self.jumping:
                     self.standing = False
             else:
@@ -554,9 +603,9 @@ class MainCharacter(pygame.sprite.Sprite):
 
     def walking(self, direction):
         # определение направления движения
-        if direction == pygame.K_a and self.can_move_l:
+        if direction == pygame.K_a:
             self.left = True
-        elif direction == pygame.K_d and self.can_move_r:
+        elif direction == pygame.K_d:
             self.right = True
 
     def stop_walking(self, direction):
@@ -590,14 +639,14 @@ class MainCharacter(pygame.sprite.Sprite):
             pass  # атака в прыжке (разработаю, когда будет анимация атаки в прыжке)
         elif self.reloading:  # гг производит атаку и перезаряжает ее
             # проверка для каждого игрока находится ли он в поле действия атаки
-            for elem in enemies:
-                elem.is_under_attack()
             self.reloading = True
             self.last = pygame.time.get_ticks()
             self.attack_timer = pygame.time.get_ticks()
 
     def shoot(self, target):
-        Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
+        self.shuriken -= 1
+        if self.shurikens:
+            Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
 
     def check_ground(self):
         for elem in level.surface_sprites:
@@ -605,16 +654,6 @@ class MainCharacter(pygame.sprite.Sprite):
                     and elem.rect.top == self.rect.bottom - 1:
                 return True
         return False
-
-    def check_sides(self):
-        can_r = can_l = True
-        for elem in level.surface_sprites:
-            if pygame.sprite.spritecollideany(elem, main_character_group):
-                if elem.rect.right - 1 == self.rect.left:
-                    can_l = False
-                if elem.rect.left == self.rect.right - 1:
-                    can_r = False
-                return can_l, can_r
 
 
 class Platform(pygame.sprite.Sprite):
@@ -886,7 +925,7 @@ if __name__ == '__main__':
     pygame.display.set_caption('Приключение Лю Кэнга во Владимире')
     pygame.mouse.set_visible(False)
 
-    spisok_level = [level_0, level_1, level_2]
+    spisok_level = [level_1, level_2]
 
     run = True
     while run:

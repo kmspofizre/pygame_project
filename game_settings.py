@@ -12,7 +12,7 @@ fps = 25
 clock1 = pygame.time.Clock()
 
 SHOOTING_EVENT = pygame.USEREVENT + 1
-
+time = -1500
 screen_height = tile_number_vertic * tile_size
 screen_width = 1200
 screen = pygame.display.set_mode((screen_width, screen_height))

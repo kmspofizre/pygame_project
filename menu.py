@@ -1,5 +1,6 @@
 import random
 import os
+import sys
 from datetime import datetime
 
 from game_settings import *
@@ -186,7 +187,7 @@ def result_level(coins, lifes, enemy_kill):
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP
                                              and event.key == pygame.K_ESCAPE):
                 sound.stop('game3')
-                active_result_level = False
+                sys.exit()
             if event.type == SHOOTING_EVENT:
                 position = (
                     random.randint(0, screen_width),
