@@ -1,6 +1,5 @@
 import random
 import os
-import sys
 from datetime import datetime
 
 from game_settings import *
@@ -445,66 +444,63 @@ class Menu:
 
 
 class EndMenu:
-    def __init__(self, menu_items):
-        self.menu_items = menu_items
+    def __init__(self, end_menu_items):
+        self.end_menu_items = end_menu_items
 
-    def render(self, screen, font, num_menu_item):
+    def render(self, screen, font, end_menu_item):
         font = pygame.font.SysFont("Times new Roman", 120)
-        screen.blit(font.render("YOU DIED", 1, "red"), (312, 220))
+        screen.blit(font.render("YOU DIED", True, "red"), (312, 220))
 
         font = pygame.font.SysFont("Times New Roman", 30)
 
-        for i in self.menu_items:
-            if num_menu_item == i[5]:
-                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1]))
+        for elem in self.end_menu_items:
+            if end_menu_item == elem[5]:
+                screen.blit(font.render(elem[2], True, elem[4]), (elem[0], elem[1]))
             else:
-                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1]))
+                screen.blit(font.render(elem[2], True, elem[3]), (elem[0], elem[1]))
 
-    def menu(self):
-        active_menu = True
+    def show_menu(self):
         pygame.key.set_repeat(0, 0)
-        font_menu = pygame.font.SysFont('Times New Roman', 50)
-        menu_item = 0
-        while active_menu:
+        font = pygame.font.SysFont('Times New Roman', 50)
+        end_menu_item = 0
+        run = True
+        while run:
             sound.stop("game4")
             screen.fill((0, 0, 0))
-            mouse_coords = pygame.mouse.get_pos()
+            pos = pygame.mouse.get_pos()
 
-            if pygame.mouse.get_focused():
-                cursor.draw(screen)
+            for i in self.end_menu_items:
+                if i[0] < pos[0] < i[0] + 150 \
+                        and i[1] < pos[1] < i[1] + 50:
+                    end_menu_item = i[5]
 
-            for i in self.menu_items:
-                if i[0] < mouse_coords[0] < i[0] + 150 \
-                        and i[1] < mouse_coords[1] < i[1] + 50:
-                    menu_item = i[5]
-
-            self.render(screen, font_menu, menu_item)
+            self.render(screen, font, end_menu_item)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        if menu_item == 0:
-                            active_menu = False
+                        if end_menu_item == 0:
+                            run = False
                             menu.menu()
-                        if menu_item == 1:
+                        if end_menu_item == 1:
                             sys.exit()
                     if event.key == pygame.K_ESCAPE:
                         sys.exit()
                     if event.key == pygame.K_UP:
-                        if menu_item > 0:
-                            menu_item -= 1
+                        if end_menu_item > 0:
+                            end_menu_item -= 1
                     if event.key == pygame.K_DOWN:
-                        if menu_item < len(self.menu_items) - 1:
-                            menu_item += 1
+                        if end_menu_item < len(self.end_menu_items) - 1:
+                            end_menu_item += 1
                 if event.type == pygame.MOUSEMOTION:
                     cur.rect = event.pos
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if menu_item == 0:
-                        active_menu = False
+                    if end_menu_item == 0:
+                        run = False
                         menu.menu()
-                    if menu_item == 1:
+                    if end_menu_item == 1:
                         sys.exit()
 
             if pygame.mouse.get_focused():

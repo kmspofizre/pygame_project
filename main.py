@@ -38,14 +38,17 @@ shurikens = pygame.sprite.Group()
 main_character_group = pygame.sprite.Group()
 
 
+# Обновление кадра
 def start_level():
     sound.play('game4', 10, 0.3)
 
     draw_inventory = False
+    hold_left_btn = False
     global running
     running = True
     while running:
         for event in pygame.event.get():
+            mouse_btns = pygame.mouse.get_pressed()
             if event.type == SHOOTING_EVENT:
                 for j in range(len(archers)):
                     archers[j].shoot()
@@ -74,6 +77,15 @@ def start_level():
                         draw_inventory = False
                 if event.button == 3:
                     main_character.shoot(event.pos)
+            if draw_inventory:
+                if mouse_btns[0] and not hold_left_btn:
+                    print(pygame.mouse.get_pos())
+                    inventory.set_start_cell(pygame.mouse.get_pos())
+                    hold_left_btn = True
+                if hold_left_btn and not mouse_btns[0]:
+                    print(pygame.mouse.get_pos())
+                    inventory.set_end_cell(pygame.mouse.get_pos())
+                    hold_left_btn = False
             if event.type == pygame.MOUSEMOTION:
                 cur.rect = event.pos
 
@@ -99,10 +111,17 @@ def start_level():
         pygame.display.update()
 
 
+# Окончание игры при смерти героя
 def game_over():
     sound.play("game_over", 1, 0.1)
     main_character.hp = 1
-    end_menu.menu()
+    end_menu.show_menu()
+    ar.kill()
+    archers.clear()
+    main_character.kill()
+    for sprite in enemies:
+        sprite.kill()
+    enemies.clear(screen, screen)
     global running
     running = False
 
@@ -134,6 +153,7 @@ def import_cut_png(path):
     return cut_tiles
 
 
+# Преобразование -png или -jpg файла в объект
 def load_image(name, color_key=None):
     fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
@@ -182,6 +202,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(x, y)
 
+    # разбитие спрайт-сета на спрайты
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(
             0, 0, sheet.get_width() // columns, sheet.get_height() // rows
@@ -195,6 +216,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
                     )
                 )
 
+    # Смена спрайта
     def update(self, shift):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
@@ -219,6 +241,7 @@ class Level:
         self.display_surface = surface
         self.screen_shift = 0
 
+        # Импортирование данных из -csv файлов
         player_layout = import_csv(level_data['player'])
         self.main_character = main_character
         self.player = pygame.sprite.GroupSingle()
@@ -249,7 +272,6 @@ class Level:
         )
 
     # функция создания игрока из класса MainСharacter и точки выхода из уровня
-    # TODO: Сделать только создание финиша
     def player_setup(self, layout, main_charaster):
         for r_index, row in enumerate(layout):
             for c_index, znach in enumerate(row):
@@ -308,6 +330,7 @@ class Level:
         else:
             self.screen_shift = 0
 
+    # Камера
     def check_camera(self):
         right_rect = pygame.rect.Rect(game_settings.screen_width, 0, 1, game_settings.screen_height)
         left_rect = pygame.rect.Rect(0, 0, 1, game_settings.screen_height)
@@ -354,6 +377,7 @@ class Level:
             ar.update_sdvig_x(500)
             self.finish.update(500)
 
+    # Проаерка на достижение финиша
     def check_finish(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
             # удаление лишних врагов с экрана
@@ -397,6 +421,7 @@ class Level:
         self.check_finish()
 
 
+# Классы для функции create_tile_group класса Level
 class Surface:
     tile_list = import_cut_png("./data/surface/surface.png")
 
@@ -436,6 +461,7 @@ class Coin(AnimatedSprite):
 '''ПЕРСОНАЖИ'''
 
 
+# Главный герой
 class MainCharacter(pygame.sprite.Sprite):
     def __init__(self, x, y):
         self.x = x
@@ -459,7 +485,6 @@ class MainCharacter(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2(0, 0)
 
         self.is_attacking = False
-        self.face = True
         self.moving = False
         self.rising = False
         self.jumping = False
@@ -473,6 +498,7 @@ class MainCharacter(pygame.sprite.Sprite):
         self.iteration_counter = 0
         self.shuriken = 5
 
+    # обработка спрайт-сетов
     def cut_sheet(self, sheet, columns, rows, x, y):
         self.rect = pygame.Rect(
             x, y, sheet.get_width() // columns, sheet.get_height() // rows
@@ -602,21 +628,22 @@ class MainCharacter(pygame.sprite.Sprite):
                 # изменение направления движения героя
                 self.direction.x = 0
 
+    # определение направления движения
     def walking(self, direction):
-        # определение направления движения
         if direction == pygame.K_a:
             self.left = True
         elif direction == pygame.K_d:
             self.right = True
 
+    # определение направления движения
     def stop_walking(self, direction):
         if direction == pygame.K_a:
             self.left = False
         elif direction == pygame.K_d:
             self.right = False
 
+    # прыжок
     def jump(self):
-
         # переменная jumping позволяет передвигаться в воздухе
         # rising - взлет
         # rising_timer - таймер взлета, которое изменяется в update
@@ -627,13 +654,14 @@ class MainCharacter(pygame.sprite.Sprite):
         self.standing = False
         self.rect = self.rect.move(0, -5)
 
+    # получение урона от пуль и ходячих, если здоровье на нуле - игра окончена
     def get_damage(self):
-        # получение урона от пуль и ходячих, если здоровье на нуле - игра окончена
         if not self.is_attacking:
             self.hp -= 1
             if self.hp == 0:
                 game_over()
 
+    # Атака в ближнем бою
     def attack(self):
         self.is_attacking = True
         if self.reloading and self.jumping:
@@ -644,11 +672,13 @@ class MainCharacter(pygame.sprite.Sprite):
             self.last = pygame.time.get_ticks()
             self.attack_timer = pygame.time.get_ticks()
 
+    # Атака сюрикеном
     def shoot(self, target):
         self.shuriken -= 1
-        if self.shurikens:
+        if self.shuriken > 0:
             Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
 
+    # Проверка на контакт с землёй
     def check_ground(self):
         for elem in level.surface_sprites:
             if pygame.sprite.spritecollideany(elem, main_character_group) \
@@ -657,32 +687,23 @@ class MainCharacter(pygame.sprite.Sprite):
         return False
 
 
-class Platform(pygame.sprite.Sprite):
-
-    # тестовое окружение
-    def __init__(self, x, y, width, height):
-        super().__init__(level.surface_sprites)
-        self.image = pygame.Surface((width, height), pygame.SRCALPHA, 32)
-        pygame.draw.rect(
-            self.image, pygame.Color('grey'), (0, 0, width, height)
-        )
-        self.rect = pygame.Rect(x, y, width, height)
-
-
+#  Класс всех врагов
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(enemies)
         self.hp = 5
 
+    # получение урона от гг (функция attack)
     def is_under_attack(self):
-        # получение урона от гг (функция attack)
         if pygame.sprite.spritecollideany(self, main_character_group):
             self.get_damage()
 
+    # получение урона от гг (функция shoot)
     def is_getting_shot(self):
         if pygame.sprite.spritecollideany(self, shurikens):
             self.get_damage()
 
+    # Получние урона
     def get_damage(self):
         self.hp -= 1
         if self.hp == 0:
@@ -695,6 +716,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x += shift
 
 
+# Класс врагов дальнего боя
 class Archer(Enemy):
     def __init__(self, x, y):
         super().__init__()
@@ -717,8 +739,8 @@ class Archer(Enemy):
     def update_sdvig_x(self, shift):
         self.rect.x += shift
 
+    # выстрел, при инициализации класса передаются координаты стрелка
     def shoot(self):
-        # выстрел, при инициализации класса передаются координаты стрелка
         Bullet(
             self.rect.x, self.rect.y,
             main_character.rect.x, main_character.rect.y,
@@ -726,9 +748,11 @@ class Archer(Enemy):
         )
 
 
+# Класс снаряда, выстреливаемого врагом дальнего боя
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, target_x, target_y, group):
         super().__init__(group)
+
         try:
             self.frames = self.cut_sheet(
                 load_image("data/enemy/bottle_12_2.png"),
@@ -736,25 +760,31 @@ class Bullet(pygame.sprite.Sprite):
             )
         except Exception:
             print("отсутствует анимация бутылки")
+
         self.rect = pygame.Rect(x, y, 50, 50)
         self.cur_frame = 0
+
         # получение координат цели
         self.target_x = target_x
         self.target_y = target_y
         targets = [self.target_x, self.target_y]
+
         # нахождение расстояния между стрелком и целью
         paths = [abs(self.target_x - x), abs(self.target_y - y)]
         coords = [x, y]
         hypot = math.hypot(paths[0], paths[1])
         for_direction = [1, 1]
+
         # определение направления полета снаряда
         self.dx, self.dy = map(
             lambda i: for_direction[i] * 1
             if coords[i] - targets[i] < 0 else -1, range(2)
         )
-        # сначала мы выясням, за сколько времени пуля пройдет гипотенузу
-        # и потом присваиваем скорости по x и y значения: расстояние по x или y / время прохождения гипотенузы
-        # 4 - скорость прохождения гипотенузы (выбрал сам)
+
+        """сначала мы выясням, за сколько времени пуля пройдет гипотенузу
+         и потом присваиваем скорости по x и y значения: расстояние по x или y
+         время прохождения гипотенузы 4 - скорость прохождения гипотенузы"""
+
         if paths[1] <= 10:
             self.vy = 0
         else:
@@ -764,11 +794,13 @@ class Bullet(pygame.sprite.Sprite):
         else:
             self.vx = math.ceil(paths[0] / (hypot / 4))
 
+    # нарезка спрайт-сета на спрайты
     def cut_sheet(self, sheet, columns, rows, x, y):
         self.rect = pygame.Rect(
             x, y, sheet.get_width() // columns, sheet.get_height() // rows
         )
         frames = []
+
         for j in range(rows):
             for i in range(columns):
                 frame_location = (self.rect.w * i, self.rect.h * j)
@@ -782,20 +814,24 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
+
         # пуля перемещается на произведение скорости и расстояния и при соприкосновении
         # с главным героем уменьшает его здоровье и пропадает
-
         self.rect = self.rect.move(self.vx * self.dx, self.vy * self.dy)
+
         if pygame.sprite.spritecollideany(self, main_character_group):
             main_character.get_damage()
             self.kill()
+
         if pygame.sprite.spritecollideany(self, level.surface_sprites):
             self.kill()
 
 
+# Класс снаряда, выпускаемого главным героем
 class Shuriken(Bullet):
     def __init__(self, x, y, target_x, target_y, group):
         super().__init__(x, y, target_x, target_y, group)
+
         try:
             self.frames = self.cut_sheet(
                 load_image("data/hero/lukang/shuriken_6_1.png"),
@@ -803,6 +839,7 @@ class Shuriken(Bullet):
             )
         except Exception:
             print("отсутствует анимация сюрикена")
+
         self.rect = pygame.Rect(x, y, 32, 32)
         self.waiting = False
         self.touch_time = 0
@@ -820,6 +857,7 @@ class Shuriken(Bullet):
             self.kill()
 
 
+# Противник ближнего боя
 class GroundEnemy(Enemy):
     def __init__(self, x, y, walking_range, shift):
         super().__init__()
@@ -846,6 +884,7 @@ class GroundEnemy(Enemy):
 
         self.shift = shift
 
+    # нарезка спрайт-сетов на спрайты
     def cut_sheet(self, sheet, columns, rows, x, y):
         self.rect = pygame.Rect(
             x, y, sheet.get_width() // columns, sheet.get_height() // rows
@@ -893,9 +932,11 @@ class GroundEnemy(Enemy):
     def update_sdvig_x(self, shift):
         self.rect.x += shift
 
+    """цикличное хождение влево-вправо от стартовой позиции
+     до (стартовой позиции + walking_range)"""
     def walking(self):
-        # цикличное хождение влево-вправо от стартовой позиции до стартовая позиция + walking_range
         if self.rect.x + 1 > self.start_x + self.walking_range:
+
             try:
                 self.frames = self.cut_sheet(
                     pygame.transform.flip(
@@ -905,7 +946,9 @@ class GroundEnemy(Enemy):
                 )
             except Exception:
                 print("отсутствует анимация передвижения гопника")
+
             self.direction = -1
+
         elif self.rect.x - 1 < self.start_x:
             try:
                 self.frames = self.cut_sheet(
@@ -914,6 +957,7 @@ class GroundEnemy(Enemy):
                 )
             except Exception:
                 print("отсутствует анимация передвижения гопника")
+
             self.direction = 1
         self.rect = self.rect.move(1 * self.direction, 0)
 
