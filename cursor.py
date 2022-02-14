@@ -4,6 +4,7 @@ import sys
 import pygame
 
 
+#функция загрузка спрайтов
 def load_image(name, color_key=None):
     fullname = os.path.join('', name)
     if not os.path.isfile(fullname):

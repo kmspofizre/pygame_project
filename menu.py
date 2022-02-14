@@ -10,6 +10,7 @@ from sound import sound
 all_sprites = pygame.sprite.Group()
 
 
+#функция загрузка спрайтов
 def load_image(name, color_key=None):
     fullname = os.path.join('', name)
     if not os.path.isfile(fullname):
@@ -24,6 +25,7 @@ def load_image(name, color_key=None):
     return image
 
 
+# функция создания частиц
 def create_particles(position):
     # количество создаваемых частиц
     particle_count = 20
@@ -33,6 +35,7 @@ def create_particles(position):
         Particle(position, random.choice(numbers), random.choice(numbers))
 
 
+# функция отображения экрана лучших игр из БД
 def score():
     screen.fill(surface_color)
 
@@ -305,6 +308,7 @@ def rules():
         pygame.display.update()
 
 
+# класс частиц
 class Particle(pygame.sprite.Sprite):
     # сгенерируем частицы разного размера
     try:
@@ -443,6 +447,7 @@ class Menu:
             pygame.display.update()
 
 
+# класс экрана DIED
 class EndMenu:
     def __init__(self, end_menu_items):
         self.end_menu_items = end_menu_items

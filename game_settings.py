@@ -3,6 +3,8 @@ import sys
 
 import pygame
 
+# основные настройки игры
+
 # настройка размера экрана и размера tile
 tile_number_vertic = 12
 tile_size = 64

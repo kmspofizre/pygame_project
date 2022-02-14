@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1d6cd7ce-e5bb-4a25-847b-a28969b45340" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="1d6cd7ce-e5bb-4a25-847b-a28969b45340" name="Default Changelist" comment="Убрал повторный вывод спрайта герой, приводящий к дублированию на последующих уровнях, исправил недочёты первого уровня и баг на фоне второго уровня, добавляю комментарии к коду программы">
       <change beforePath="$PROJECT_DIR$/data/score.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/data/score.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +69,14 @@
       <option name="presentableId" value="Default" />
       <updated>1642696325700</updated>
     </task>
+    <task id="LOCAL-00001" summary="Убрал повторный вывод спрайта герой, приводящий к дублированию на последующих уровнях, исправил недочёты первого уровня и баг на фоне второго уровня, добавляю комментарии к коду программы">
+      <created>1644837800913</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1644837800913</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -95,5 +101,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Убрал повторный вывод спрайта герой, приводящий к дублированию на последующих уровнях, исправил недочёты первого уровня и баг на фоне второго уровня, добавляю комментарии к коду программы" />
+    <option name="LAST_COMMIT_MESSAGE" value="Убрал повторный вывод спрайта герой, приводящий к дублированию на последующих уровнях, исправил недочёты первого уровня и баг на фоне второго уровня, добавляю комментарии к коду программы" />
   </component>
 </project>
