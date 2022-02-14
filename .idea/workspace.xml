@@ -2,34 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d6cd7ce-e5bb-4a25-847b-a28969b45340" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/audio/game_over.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/audio/game_over.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/characters.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cursor.py" beforeDir="false" afterPath="$PROJECT_DIR$/cursor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/cursor/cursor.gif" beforeDir="false" afterPath="$PROJECT_DIR$/data/cursor/cursor.gif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/hero/lukang/move_5_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/data/hero/lukang/move_5_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/score.db" beforeDir="false" afterPath="$PROJECT_DIR$/data/score.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/game_settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/level.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/score.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/data/score.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/surface/surface.png" beforeDir="false" afterPath="$PROJECT_DIR$/data/surface/surface.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/surface/Без имени-1.psd" beforeDir="false" afterPath="$PROJECT_DIR$/data/surface/Без имени-1.psd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/levels/data/level0.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/data/level0.tmx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/levels/data/level1.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/data/level1.tmx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level0/level0_bochki.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level0/level0_bochki.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level0/level0_cup.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level0/level0_cup.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level0/level0_enemy.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level0/level0_enemy.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level0/level0_player.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level0/level0_player.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/levels/data/level2.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/data/level2.tmx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/levels/level0/level0_surface.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level0/level0_surface.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level1/level1_bochki.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level1/level1_bochki.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level1/level1_cup.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level1/level1_cup.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level1/level1_enemy.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level1/level1_enemy.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level1/level1_player.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level1/level1_player.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/levels/level1/level1_surface.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level1/level1_surface.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/levels/level2/level2_surface.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level2/level2_surface.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/tiles/bochka1.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/tiles/bochka1.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/tiles/coin.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/tiles/coin.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/tiles/enemy.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/tiles/enemy.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/tiles/startfinish.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/tiles/startfinish.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/tiles/surf.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/tiles/surf.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sound.py" beforeDir="false" afterPath="$PROJECT_DIR$/sound.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +19,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="merge_Dev_and_features" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="23yBDQGd4JseYZRtLZgpPYiv7ZX" />
@@ -74,6 +61,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
