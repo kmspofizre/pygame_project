@@ -32,6 +32,8 @@ level_2 = {'fon': './data/fon/level_fon_3.jpg',
            'enemy': './levels/level2/level2_enemy.csv'}
 
 archers = []  # список стрелков
+
+# группы отображаемых спрайтов
 enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 shurikens = pygame.sprite.Group()
@@ -92,7 +94,7 @@ def start_level():
         # вызов метода обновления экрана
         level.update()
 
-        main_character.update()
+      #  main_character.update()
         shurikens.update()
         shurikens.draw(screen)
         bullets.update()
@@ -100,7 +102,7 @@ def start_level():
         for archer in archers:
             archer.update()
         enemies.draw(screen)
-        main_character_group.draw(screen)
+      #  main_character_group.draw(screen)
         draw_interface(main_character.hp)
         if draw_inventory:
             inventory.draw_inventory()
@@ -970,20 +972,24 @@ if __name__ == '__main__':
     pygame.display.set_caption('Приключение Лю Кэнга во Владимире')
     pygame.mouse.set_visible(False)
 
+    # список уровней игры
     spisok_level = [level_0, level_1, level_2]
 
     run = True
     while run:
         menu.menu()
         for number in spisok_level:
+            # принудительная инициализация гопника с бутылкой и Лю Кэнга
             ar = Archer(100, 250)
             enemies.add(ar)
             archers.append(ar)
             main_character = MainCharacter(2, 400)
 
+            # создание уровня из класса и его запуск
             level = Level(number, screen, main_character)
             start_level()
 
+            # принудительное удаление гопника с бутылкой
             ar.kill()
             archers.clear()
 

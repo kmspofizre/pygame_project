@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d6cd7ce-e5bb-4a25-847b-a28969b45340" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/score.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/data/score.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/data/level0.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/data/level0.tmx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/data/level1.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/data/level1.tmx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/data/level2.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/data/level2.tmx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level0/level0_player.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level0/level0_player.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level1/level1_player.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level1/level1_player.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level2/level2_player.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level2/level2_player.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,6 +18,9 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="23yBDQGd4JseYZRtLZgpPYiv7ZX" />
   <component name="ProjectViewState">
