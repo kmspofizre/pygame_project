@@ -51,6 +51,7 @@ def start_level():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 sys.exit()
             mouse_btns = pygame.mouse.get_pressed()
             if event.type == SHOOTING_EVENT:
