@@ -257,6 +257,11 @@ class Level:
         self.surface_sprites = self.create_tile_group(
             surface_layout, 'surface'
         )
+        self.left_ones = self.create_left(
+            surface_layout, 'surface'
+        )
+
+        self.right_ones = self.create_right(surface_layout, 'surface')
 
         bochki_layout = import_csv(level_data['bochki'])
         self.bochki_sprites = self.create_tile_group(
@@ -291,7 +296,39 @@ class Level:
                     sprite = SurfaceTile(tile_size, x, y, finish_surface)
                     self.finish.add(sprite)
 
-    # функция создания уровня из tile
+    def create_left(self, lay, type):
+        sprite_group = pygame.sprite.Group()
+
+        for r_index, row in enumerate(lay):
+            for c_index, znach in enumerate(row):
+                if znach != '-1':
+                    x = c_index * tile_size
+                    y = r_index * tile_size
+
+                    if type == 'surface':
+                        if znach in ('3', '6'):
+                            sprite = Surface(znach, x, y).return_sprite()
+                            sprite_group.add(sprite)
+
+        return sprite_group
+
+    def create_right(self, lay, type):
+        sprite_group = pygame.sprite.Group()
+
+        for r_index, row in enumerate(lay):
+            for c_index, znach in enumerate(row):
+                if znach != '-1':
+                    x = c_index * tile_size
+                    y = r_index * tile_size
+
+                    if type == 'surface':
+                        if znach in ('5', '8'):
+                            sprite = Surface(znach, x, y).return_sprite()
+                            sprite_group.add(sprite)
+
+        return sprite_group
+
+            # функция создания уровня из tile
     def create_tile_group(self, lay, type):
         sprite_group = pygame.sprite.Group()
 
@@ -348,6 +385,8 @@ class Level:
             self.bochki_sprites.update(-500)
             self.cup_sprites.update(-500)
             self.enemy_sprites.update(-500)
+            self.right_ones.update(-500)
+            self.left_ones.update(-500)
 
             self.surface_sprites.draw(self.display_surface)
             self.bochki_sprites.draw(self.display_surface)
@@ -369,6 +408,8 @@ class Level:
             self.bochki_sprites.update(500)
             self.cup_sprites.update(500)
             self.enemy_sprites.update(500)
+            self.right_ones.update(500)
+            self.left_ones.update(500)
 
             self.surface_sprites.draw(self.display_surface)
             self.bochki_sprites.draw(self.display_surface)
@@ -539,11 +580,21 @@ class MainCharacter(pygame.sprite.Sprite):
                 print("отсутствует анимация атаки персонажа")
             for elem in enemies:
                 elem.is_under_attack()
-                print(elem.hp)
 
         # проверка перезарядки атаки
         # если прошло больше 3 секунд с последней атаки
-
+        if pygame.sprite.spritecollideany(self, level.left_ones):
+            for elem in level.left_ones:
+                if pygame.sprite.spritecollideany(elem, main_character_group):
+                    if abs(elem.rect.left == self.rect.right - 1) <= 2 and elem.rect.bottom - 1 <= self.rect.bottom + 40:
+                        self.right = False
+                        break
+        if pygame.sprite.spritecollideany(self, level.right_ones):
+            for elem in level.right_ones:
+                if pygame.sprite.spritecollideany(elem, main_character_group):
+                    if abs(elem.rect.right - 1 - self.rect.left) <= 2 and elem.rect.bottom - 1 <= self.rect.bottom + 40:
+                        self.left = False
+                        break
         if pygame.sprite.spritecollideany(self, level.surface_sprites) \
                 and self.check_ground():
             self.rising_timer = 0
@@ -565,7 +616,7 @@ class MainCharacter(pygame.sprite.Sprite):
                 print("отсутствует анимация прыжка персонажа")
             if self.right:
                 self.direction.x = 1
-                self.rect = self.rect.move(2, 0)
+                self.rect = self.rect.move(1, 0)
             if self.left:
                 try:
                     self.frames = self.cut_sheet(
@@ -575,7 +626,7 @@ class MainCharacter(pygame.sprite.Sprite):
                 except Exception:
                     print("отсутствует анимация прыжка персонажа")
                 self.direction.x = -1
-                self.rect = self.rect.move(-2, 0)
+                self.rect = self.rect.move(-1, 0)
             if not self.rising:  # если не взлетает
                 self.rect = self.rect.move(0, 1)  # падает
                 self.moving = False  # анимация падения (или продолжение анимации прыжка)
@@ -610,7 +661,7 @@ class MainCharacter(pygame.sprite.Sprite):
                     )
                 except Exception:
                     print("отсутствует анимация движения персонажа")
-                self.rect = self.rect.move(-2, 0)  # анимация движения влево
+                self.rect = self.rect.move(-1, 0)  # анимация движения влево
                 if not self.jumping:
                     self.standing = False
             elif self.right:
@@ -623,7 +674,7 @@ class MainCharacter(pygame.sprite.Sprite):
                         5, 2, self.rect.x, self.rect.y)
                 except Exception:
                     print("отсутствует анимация движения персонажа")
-                self.rect = self.rect.move(2, 0)  # анимация движения вправо
+                self.rect = self.rect.move(1, 0)  # анимация движения вправо
                 if not self.jumping:
                     self.standing = False
             else:
@@ -650,7 +701,7 @@ class MainCharacter(pygame.sprite.Sprite):
         # rising - взлет
         # rising_timer - таймер взлета, которое изменяется в update
         self.rising = True
-        self.rising_timer += 200
+        self.rising_timer += 300
         self.jumping = True
         self.moving = False
         self.standing = False

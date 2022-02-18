@@ -84,7 +84,6 @@ class Inventory:
     def add_item(self, name):
         try:
             self.resources[name].amount += 1
-            print(self.resources[name].amount)
             self.update_inventory()
         except KeyError:
             print("error")

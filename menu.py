@@ -37,7 +37,7 @@ def create_particles(position):
 
 # функция отображения экрана лучших игр из БД
 def score():
-    screen.fill(surface_color)
+    screen.fill(pygame.Color(surface_color))
 
     try:
         font = pygame.font.Font('fonts/Asessorc.otf', 30)
@@ -51,7 +51,7 @@ def score():
 
     active_menu = True
     while active_menu:
-        screen.fill(surface_color)
+        screen.fill(pygame.Color(surface_color))
         i = 0
         pygame.draw.line(
             screen, pygame.Color('white'),
@@ -156,31 +156,31 @@ def result_level(coins, lifes, enemy_kill):
 
         screen.blit(
             font.render(
-                'Результаты прохождения уровня:', 3, 'yellow'
+                'Результаты прохождения уровня:', 3, pygame.Color('yellow')
             ),
             (300, 100)
         )
         screen.blit(
             font.render(
-                f'Вы заработали {score} очков', 1, 'yellow'
+                f'Вы заработали {score} очков', 1, pygame.Color('yellow')
             ),
             (300, 200)
         )
         screen.blit(
             font.render(
-                f'Количество собранных монет: {coin}', 1, 'yellow'
+                f'Количество собранных монет: {coin}', 1, pygame.Color('yellow')
             ),
             (300, 300)
         )
         screen.blit(
             font.render(
-                'Количество убитых врагов: 0', 1, 'yellow'
+                'Количество убитых врагов: 0', 1, pygame.Color('yellow')
             ),
             (300, 400)
         )
         screen.blit(
             font.render(
-                f'Количество оставшегося здоровья: {life}', 1, 'yellow'
+                f'Количество оставшегося здоровья: {life}', 1, pygame.Color('yellow')
             ),
             (300, 500)
         )
@@ -223,63 +223,63 @@ def rules():
 
         screen.blit(
             font.render(
-                'Hello! This rules of game:', 3, 'red'
+                'Hello! This rules of game:', 3, pygame.Color('red')
             ),
             (50, 100)
         )
         screen.blit(
             font.render(
-                '', 3, 'red'
+                '', 3, pygame.Color('red')
             ),
             (50, 150)
         )
         screen.blit(
             font.render(
-                'Control Hero: W, D, Space, LMB', 1, 'red'
+                'Control Hero: W, D, Space, LMB', 1, pygame.Color('red')
             ),
             (50, 200)
         )
         screen.blit(
             font.render(
-                'Exit from menu : ESCAPE', 1, 'red'
+                'Exit from menu : ESCAPE', 1, pygame.Color('red')
             ),
             (50, 250)
         )
         screen.blit(
             font.render(
                 'It is impossible to close the game during the passage of the level,',
-                1, 'red'
+                1, pygame.Color('red')
             ),
             (50, 300)
         )
         screen.blit(
             font.render(
-                'it is necessary to find the finish', 1, 'red'
+                'it is necessary to find the finish', 1, pygame.Color('red')
             ),
             (50, 350)
         )
         screen.blit(
             font.render(
-                '', 3, 'red'
+                '', 3, pygame.Color('red')
             ),
             (50, 400)
         )
         screen.blit(
             font.render(
-                'Thanks !!!', 1, 'red'
+                'Thanks !!!', 1, pygame.Color('red')
             ),
             (50, 450)
         )
         screen.blit(
             font.render(
-                '', 3, 'red'
+                '', 3, pygame.Color('red')
             ),
             (50, 500)
         )
         screen.blit(
             font.render(
                 'When you move the cursor behind the menu screen, stars are made',
-                1, 'red'
+                1, pygame.Color('red')
             ),
             (50, 550)
         )
@@ -357,7 +357,7 @@ class Menu:
             sys.exit()
 
         screen.blit(
-            font.render('Liu Kang Adventures in city Vladimir', 1, 'red'),
+            font.render('Liu Kang Adventures in city Vladimir', 1, pygame.Color('red')),
             (300, 100)
         )
 
@@ -366,7 +366,7 @@ class Menu:
         except:
             print('Не найден файл шрифта !')
             sys.exit()
-        screen.blit(font.render('Copyright 2021-2022', 1, 'green'), (450, 700))
+        screen.blit(font.render('Copyright 2021-2022', 1, pygame.Color('green')), (450, 700))
 
         try:
             font = pygame.font.Font('fonts/Acsiomasupershockc.otf', 50)
@@ -376,9 +376,9 @@ class Menu:
 
         for i in self.menu_item:
             if num_menu_item == i[5]:
-                screen.blit(font.render(i[2], 1, i[4]), (i[0], i[1]))
+                screen.blit(font.render(i[2], 1, pygame.Color(i[4])), (i[0], i[1]))
             else:
-                screen.blit(font.render(i[2], 1, i[3]), (i[0], i[1]))
+                screen.blit(font.render(i[2], 1, pygame.Color(i[3])), (i[0], i[1]))
 
     #функция создания меню
     def menu(self):
@@ -454,15 +454,15 @@ class EndMenu:
 
     def render(self, screen, font, end_menu_item):
         font = pygame.font.SysFont("Times new Roman", 120)
-        screen.blit(font.render("YOU DIED", True, "red"), (312, 220))
+        screen.blit(font.render("YOU DIED", True, pygame.Color("red")), (312, 220))
 
         font = pygame.font.SysFont("Times New Roman", 30)
 
         for elem in self.end_menu_items:
             if end_menu_item == elem[5]:
-                screen.blit(font.render(elem[2], True, elem[4]), (elem[0], elem[1]))
+                screen.blit(font.render(elem[2], True, pygame.Color(elem[4])), (elem[0], elem[1]))
             else:
-                screen.blit(font.render(elem[2], True, elem[3]), (elem[0], elem[1]))
+                screen.blit(font.render(elem[2], True, pygame.Color(elem[3])), (elem[0], elem[1]))
 
     def show_menu(self):
         pygame.key.set_repeat(0, 0)
