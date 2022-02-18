@@ -50,6 +50,8 @@ def start_level():
     running = True
     while running:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
             mouse_btns = pygame.mouse.get_pressed()
             if event.type == SHOOTING_EVENT:
                 for j in range(len(archers)):
