@@ -128,7 +128,7 @@ def game_over():
     running = False
 
 
-# функция импортирования файла описания уровня csv
+# функция импортирования файла описания уровня  csv
 def import_csv(path):
     surface_spisok = []
     with open(path) as filein:

@@ -514,7 +514,7 @@ class EndMenu:
             pygame.display.update()
 
 
-# создание меню
+# создание  меню
 menu_items = [(510, 210, u'Game', 'yellow', 'blue', 0),
               (520, 280, u'Rules', 'yellow', 'green', 1),
               (530, 350, u'Best', 'yellow', 'brown', 2),

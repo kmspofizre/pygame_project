@@ -7,7 +7,7 @@ pygame.init()
 
 # класс музыки и звуков
 class Sound(object):
-    # инициализация класса
+    # инициализация  класса
     def __init__(self):
         pygame.mixer.pre_init(44100, -16, 2, 1024)
         self.sounds = {}

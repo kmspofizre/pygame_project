@@ -91,7 +91,7 @@ class Inventory:
     def update_inventory(self):
         for name, resource in self.resources.items():
             if resource.amount != 0 and resource not in self.inventory_panel:
-                # TODO: сделать оповещение в инфопанели об отсутствии места
+                # TODO: сделать оповещение в инфопанели об отсутствии  места
                 self.inventory_panel.insert(
                     self.inventory_panel.index(None), resource
                 )
