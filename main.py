@@ -427,7 +427,7 @@ class Level:
 
     # Проаерка на достижение финиша
     def check_finish(self):
-        if pygame.sprite.spritecollide(self.player.sprite, self.finish, False):
+        if pygame.sprite.spritecollide(main_character, self.finish, False):
             # удаление лишних врагов с экрана
             for sprite in self.enemy_sprites:
                 # if isinstance(sprite, GroundEnemy):
