@@ -76,20 +76,21 @@ def start_level():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = pygame.mouse.get_pos()
-                    main_character.shoot((x, y))
+                    if not (x < 64 and y < 64):
+                        main_character.shoot((x, y))
                     if x < 64 and y < 64:
                         draw_inventory = True
+                        main_character.inventory_opened = True
                     if x < 10 or y < 10 or x > 440 or y > 230:
                         draw_inventory = False
+                        main_character.inventory_opened = False
                 if event.button == 3:
                     main_character.shoot(event.pos)
             if draw_inventory:
                 if mouse_btns[0] and not hold_left_btn:
-                    print(pygame.mouse.get_pos())
                     inventory.set_start_cell(pygame.mouse.get_pos())
                     hold_left_btn = True
                 if hold_left_btn and not mouse_btns[0]:
-                    print(pygame.mouse.get_pos())
                     inventory.set_end_cell(pygame.mouse.get_pos())
                     hold_left_btn = False
             if event.type == pygame.MOUSEMOTION:
@@ -524,6 +525,7 @@ class MainCharacter(pygame.sprite.Sprite):
             print("отсутствует анимация бездействия перснажа")
 
         self.items = dict()
+        self.inventory_opened = False
         self.coins = 0
         self.hp = 10
         self.enemy_kill = 0
@@ -731,7 +733,7 @@ class MainCharacter(pygame.sprite.Sprite):
 
     # Атака сюрикеном
     def shoot(self, target):
-        if self.shuriken > 0:
+        if self.shuriken > 0 and not self.inventory_opened:
             self.shuriken -= 1
             Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
 
