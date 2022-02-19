@@ -76,6 +76,7 @@ def start_level():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = pygame.mouse.get_pos()
+                    main_character.shoot((x, y))
                     if x < 64 and y < 64:
                         draw_inventory = True
                     if x < 10 or y < 10 or x > 440 or y > 230:
@@ -589,13 +590,13 @@ class MainCharacter(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, level.left_ones):
             for elem in level.left_ones:
                 if pygame.sprite.spritecollideany(elem, main_character_group):
-                    if abs(elem.rect.left == self.rect.right - 1) <= 2 and elem.rect.bottom - 1 <= self.rect.bottom + 40:
+                    if abs(elem.rect.left == self.rect.right - 1) <= 2 and elem.rect.bottom - 1 <= self.rect.bottom + 45:
                         self.right = False
                         break
         if pygame.sprite.spritecollideany(self, level.right_ones):
             for elem in level.right_ones:
                 if pygame.sprite.spritecollideany(elem, main_character_group):
-                    if abs(elem.rect.right - 1 - self.rect.left) <= 2 and elem.rect.bottom - 1 <= self.rect.bottom + 40:
+                    if abs(elem.rect.right - 1 - self.rect.left) <= 2 and elem.rect.bottom - 1 <= self.rect.bottom + 45:
                         self.left = False
                         break
         if pygame.sprite.spritecollideany(self, level.surface_sprites) \
@@ -619,7 +620,7 @@ class MainCharacter(pygame.sprite.Sprite):
                 print("отсутствует анимация прыжка персонажа")
             if self.right:
                 self.direction.x = 1
-                self.rect = self.rect.move(1, 0)
+                self.rect = self.rect.move(2, 0)
             if self.left:
                 try:
                     self.frames = self.cut_sheet(
@@ -629,7 +630,7 @@ class MainCharacter(pygame.sprite.Sprite):
                 except Exception:
                     print("отсутствует анимация прыжка персонажа")
                 self.direction.x = -1
-                self.rect = self.rect.move(-1, 0)
+                self.rect = self.rect.move(-2, 0)
             if not self.rising:  # если не взлетает
                 self.rect = self.rect.move(0, 1)  # падает
                 self.moving = False  # анимация падения (или продолжение анимации прыжка)
@@ -664,7 +665,7 @@ class MainCharacter(pygame.sprite.Sprite):
                     )
                 except Exception:
                     print("отсутствует анимация движения персонажа")
-                self.rect = self.rect.move(-1, 0)  # анимация движения влево
+                self.rect = self.rect.move(-2, 0)  # анимация движения влево
                 if not self.jumping:
                     self.standing = False
             elif self.right:
@@ -677,7 +678,7 @@ class MainCharacter(pygame.sprite.Sprite):
                         5, 2, self.rect.x, self.rect.y)
                 except Exception:
                     print("отсутствует анимация движения персонажа")
-                self.rect = self.rect.move(1, 0)  # анимация движения вправо
+                self.rect = self.rect.move(2, 0)  # анимация движения вправо
                 if not self.jumping:
                     self.standing = False
             else:
@@ -730,15 +731,16 @@ class MainCharacter(pygame.sprite.Sprite):
 
     # Атака сюрикеном
     def shoot(self, target):
-        self.shuriken -= 1
         if self.shuriken > 0:
+            self.shuriken -= 1
             Shuriken(self.rect.x, self.rect.y, target[0], target[1], shurikens)
+
 
     # Проверка на контакт с землёй
     def check_ground(self):
         for elem in level.surface_sprites:
             if pygame.sprite.spritecollideany(elem, main_character_group) \
-                    and elem.rect.top == self.rect.bottom - 1:
+                    and abs(elem.rect.top - self.rect.bottom) <= 2:
                 return True
         return False
 
