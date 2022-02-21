@@ -235,7 +235,7 @@ def rules():
         )
         screen.blit(
             font.render(
-                'Control Hero: W, D, Space, LMB', 1, pygame.Color('red')
+                'Control Hero: A, D, Space, LMB - projectile attack, F - close attack', 1, pygame.Color('red')
             ),
             (50, 200)
         )
@@ -247,28 +247,21 @@ def rules():
         )
         screen.blit(
             font.render(
-                'It is impossible to close the game during the passage of the level,',
-                1, pygame.Color('red')
+                'it is necessary to find the finish', 1, pygame.Color('red')
             ),
             (50, 300)
         )
         screen.blit(
             font.render(
-                'it is necessary to find the finish', 1, pygame.Color('red')
+                '', 3, pygame.Color('red')
             ),
             (50, 350)
         )
         screen.blit(
             font.render(
-                '', 3, pygame.Color('red')
-            ),
-            (50, 400)
-        )
-        screen.blit(
-            font.render(
                 'Thanks !!!', 1, pygame.Color('red')
             ),
-            (50, 450)
+            (50, 400)
         )
         screen.blit(
             font.render(
@@ -278,7 +271,7 @@ def rules():
         )
         screen.blit(
             font.render(
-                'When you move the cursor behind the menu screen, stars are made',
+                'If cursor will be out of screen the starfall will be made',
                 1, pygame.Color('red')
             ),
             (50, 550)
